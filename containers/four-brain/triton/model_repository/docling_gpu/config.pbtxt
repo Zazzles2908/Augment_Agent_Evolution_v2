@@ -1,0 +1,12 @@
+name: "docling_gpu"
+platform: "onnxruntime_onnx"
+max_batch_size: 0
+# Parse documents into structured blocks; interface TBD, placeholder IO for wiring
+input: [
+  { name: "input_bytes", data_type: TYPE_UINT8, dims: [ -1 ] }
+]
+output: [
+  { name: "blocks", data_type: TYPE_FP32, dims: [ 1 ] }
+]
+instance_group [ { kind: KIND_GPU, count: 1 } ]
+

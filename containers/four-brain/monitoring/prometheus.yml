@@ -1,0 +1,224 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'four-brain-production'
+    environment: 'production'
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+
+  # Four-Brain Services
+  - job_name: 'brain1-embedding'
+    static_configs:
+      - targets: ['brain1-embedding:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    params:
+      format: ['prometheus']
+
+  - job_name: 'brain2-reranker'
+    static_configs:
+      - targets: ['brain2-reranker:8002']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    params:
+      format: ['prometheus']
+
+  - job_name: 'brain3-agentic'
+    static_configs:
+      - targets: ['brain3-agentic:8003']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    params:
+      format: ['prometheus']
+
+  - job_name: 'brain4-docling'
+    static_configs:
+      - targets: ['brain4-docling:8004']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    params:
+      format: ['prometheus']
+
+  # TensorRT Accelerator Service
+  - job_name: 'tensorrt-accelerator'
+    static_configs:
+      - targets: ['tensorrt-accelerator:8005']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 8s
+    params:
+      format: ['prometheus']
+
+  # Infrastructure Services
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Node Exporter (if available)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+
+  # GPU Metrics (NVIDIA DCGM)
+  - job_name: 'nvidia-dcgm'
+    static_configs:
+      - targets: ['dcgm-exporter:9400']
+    scrape_interval: 15s
+
+  # Custom Four-Brain Metrics
+  - job_name: 'four-brain-custom'
+    static_configs:
+      - targets: 
+        - 'brain1-embedding:8001'
+        - 'brain2-reranker:8002'
+        - 'brain3-agentic:8003'
+        - 'brain4-docling:8004'
+    metrics_path: '/custom-metrics'
+    scrape_interval: 30s
+    params:
+      format: ['prometheus']
+
+  # Redis Streams Metrics
+  - job_name: 'redis-streams'
+    static_configs:
+      - targets: ['redis:6379']
+    metrics_path: '/streams-metrics'
+    scrape_interval: 15s
+
+  # Memory Store Metrics
+  - job_name: 'memory-store'
+    static_configs:
+      - targets: 
+        - 'brain1-embedding:8001'
+        - 'brain2-reranker:8002'
+        - 'brain3-agentic:8003'
+        - 'brain4-docling:8004'
+    metrics_path: '/memory-metrics'
+    scrape_interval: 30s
+
+  # Self-Grading Metrics
+  - job_name: 'self-grading'
+    static_configs:
+      - targets: 
+        - 'brain1-embedding:8001'
+        - 'brain2-reranker:8002'
+        - 'brain3-agentic:8003'
+        - 'brain4-docling:8004'
+    metrics_path: '/grading-metrics'
+    scrape_interval: 60s
+
+  # Performance Metrics
+  - job_name: 'performance'
+    static_configs:
+      - targets:
+        - 'brain1-embedding:8001'
+        - 'brain2-reranker:8002'
+        - 'brain3-agentic:8003'
+        - 'brain4-docling:8004'
+    metrics_path: '/performance-metrics'
+    scrape_interval: 30s
+
+  # TensorRT Performance Metrics
+  - job_name: 'tensorrt-performance'
+    static_configs:
+      - targets: ['tensorrt-accelerator:8005']
+    metrics_path: '/tensorrt-metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    params:
+      format: ['prometheus']
+
+  # TensorRT Benchmarking Metrics
+  - job_name: 'tensorrt-benchmarks'
+    static_configs:
+      - targets: ['tensorrt-accelerator:8005']
+    metrics_path: '/benchmark-metrics'
+    scrape_interval: 60s
+    scrape_timeout: 30s
+    params:
+      format: ['prometheus']
+
+# Recording rules moved to separate files under rule_files
+      
+      - record: four_brain:error_rate_5m
+        expr: rate(four_brain_errors_total[5m])
+      
+      - record: four_brain:latency_p95_5m
+        expr: histogram_quantile(0.95, rate(four_brain_request_duration_seconds_bucket[5m]))
+      
+      - record: four_brain:memory_usage_percent
+        expr: (four_brain_memory_used_bytes / four_brain_memory_total_bytes) * 100
+      
+      - record: four_brain:gpu_utilization_avg
+        expr: avg(nvidia_gpu_utilization_percent) by (instance)
+      
+      - record: four_brain:stream_processing_rate
+        expr: rate(redis_streams_processed_total[5m])
+
+# Note: Recording rules and alerting rules moved to separate rule files
+# This configuration focuses on scraping targets only
+          description: "Error rate is {{ $value }} errors per second"
+      
+      - alert: HighLatency
+        expr: four_brain:latency_p95_5m > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency detected"
+          description: "95th percentile latency is {{ $value }} seconds"
+      
+      - alert: HighMemoryUsage
+        expr: four_brain:memory_usage_percent > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}%"
+      
+      - alert: GPUUtilizationHigh
+        expr: four_brain:gpu_utilization_avg > 95
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU utilization very high"
+          description: "GPU utilization is {{ $value }}%"
+      
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service is down"
+          description: "{{ $labels.job }} service is down"

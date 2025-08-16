@@ -1,0 +1,300 @@
+// Grafana Alloy Configuration for Four-Brain System
+// Log forwarding to Loki with intelligent filtering and processing
+// Author: AugmentAI
+// Date: 2025-08-02
+
+// Logging configuration
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+// Discovery for Docker containers
+discovery.docker "four_brain_containers" {
+  host = "unix:///var/run/docker.sock"
+  
+  filter {
+    name   = "label"
+    values = ["com.docker.compose.project=four-brain"]
+  }
+}
+
+// Log scraping from Docker containers
+loki.source.docker "four_brain_logs" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.four_brain_containers.targets
+  
+  // Forward logs to processing pipeline
+  forward_to = [loki.process.four_brain_processor.receiver]
+  
+  // Relabeling for better organization
+  relabel_configs = [
+    {
+      source_labels = ["__meta_docker_container_name"]
+      target_label  = "container"
+      regex         = "/(.*)"
+      replacement   = "$1"
+    },
+    {
+      source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+      target_label  = "service"
+    },
+    {
+      source_labels = ["__meta_docker_container_label_brain_role"]
+      target_label  = "brain_role"
+    },
+    {
+      source_labels = ["__meta_docker_container_label_brain_id"]
+      target_label  = "brain_id"
+    }
+  ]
+}
+
+// Log processing pipeline for Four-Brain system
+loki.process "four_brain_processor" {
+  // Stage 1: Parse JSON logs
+  stage.json {
+    expressions = {
+      level     = "level"
+      timestamp = "timestamp"
+      message   = "message"
+      brain_id  = "brain_id"
+      task_id   = "task_id"
+      error     = "error"
+      duration  = "duration"
+    }
+  }
+  
+  // Stage 2: Extract log levels
+  stage.regex {
+    expression = "(?P<log_level>DEBUG|INFO|WARNING|ERROR|CRITICAL)"
+    source     = "message"
+  }
+  
+  // Stage 3: Extract TensorRT-specific metrics
+  stage.regex {
+    expression = "TensorRT.*inference.*(?P<inference_time>\\d+\\.\\d+)ms"
+    source     = "message"
+  }
+  
+  // Stage 4: Extract GPU memory usage
+  stage.regex {
+    expression = "GPU.*memory.*(?P<gpu_memory>\\d+\\.\\d+)GB"
+    source     = "message"
+  }
+  
+  // Stage 5: Extract Redis stream metrics
+  stage.regex {
+    expression = "Redis.*stream.*(?P<stream_name>\\w+).*(?P<message_count>\\d+)"
+    source     = "message"
+  }
+  
+  // Stage 6: Add labels based on content
+  stage.labels {
+    values = {
+      log_level      = "log_level"
+      inference_time = "inference_time"
+      gpu_memory     = "gpu_memory"
+      stream_name    = "stream_name"
+    }
+  }
+  
+  // Stage 7: Filter verbose logs (reduce noise)
+  stage.drop {
+    expression = ".*DEBUG.*health.*check.*"
+    drop_counter_reason = "verbose_health_checks"
+  }
+  
+  stage.drop {
+    expression = ".*heartbeat.*"
+    drop_counter_reason = "heartbeat_noise"
+  }
+  
+  // Stage 8: Enhance error logs
+  stage.template {
+    source   = "message"
+    template = "{{ if .error }}[ERROR] {{ .error }} | {{ .message }}{{ else }}{{ .message }}{{ end }}"
+  }
+  
+  // Forward to Loki
+  forward_to = [loki.write.four_brain_loki.receiver]
+}
+
+// Loki write configuration
+loki.write "four_brain_loki" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+    
+    // Tenant ID for multi-tenancy (optional)
+    tenant_id = "four-brain"
+    
+    // Batch configuration for performance
+    batch_wait = "1s"
+    batch_size = 1024
+    
+    // Retry configuration
+    max_retries    = 3
+    min_backoff    = "500ms"
+    max_backoff    = "5m"
+    retry_on_http_429 = true
+  }
+}
+
+// Prometheus metrics from logs
+prometheus.exporter.unix "system_metrics" {
+  include_exporter_metrics = true
+  
+  // Disable collectors we don't need
+  disable_collectors = [
+    "arp",
+    "bcache",
+    "bonding",
+    "btrfs",
+    "conntrack",
+    "edac",
+    "entropy",
+    "fibrechannel",
+    "hwmon",
+    "infiniband",
+    "ipvs",
+    "mdadm",
+    "nfs",
+    "nfsd",
+    "nvme",
+    "powersupplyclass",
+    "pressure",
+    "rapl",
+    "schedstat",
+    "selinux",
+    "sockstat",
+    "softnet",
+    "tapestats",
+    "textfile",
+    "thermal_zone",
+    "time",
+    "timex",
+    "udp_queues",
+    "xfs",
+    "zfs"
+  ]
+}
+
+// Custom metrics from Four-Brain logs
+prometheus.exporter.process "four_brain_metrics" {
+  matcher {
+    name = "four_brain_.*"
+    comm = ["python", "uvicorn"]
+  }
+}
+
+// Scrape custom metrics
+prometheus.scrape "four_brain_custom" {
+  targets = [
+    {"__address__" = "brain1-embedding:8001", "service" = "brain1"},
+    {"__address__" = "brain2-reranker:8002", "service" = "brain2"},
+    {"__address__" = "brain3-agentic:8003", "service" = "brain3"},
+    {"__address__" = "brain4-docling:8004", "service" = "brain4"},
+    {"__address__" = "tensorrt-accelerator:8005", "service" = "tensorrt"},
+  ]
+  
+  forward_to = [prometheus.remote_write.four_brain_prometheus.receiver]
+  
+  scrape_interval = "15s"
+  metrics_path    = "/metrics"
+}
+
+// Prometheus remote write
+prometheus.remote_write "four_brain_prometheus" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+    
+    // Queue configuration
+    capacity              = 10000
+    max_shards           = 200
+    min_shards           = 1
+    max_samples_per_send = 2000
+    batch_send_deadline  = "5s"
+    min_backoff          = "30ms"
+    max_backoff          = "100ms"
+    retry_on_http_429    = true
+  }
+}
+
+// Health check endpoint
+prometheus.exporter.self "alloy_metrics" {
+  // Export Alloy's own metrics
+}
+
+// Log-based alerting rules
+loki.rules "four_brain_alerts" {
+  rule_path = "/etc/alloy/rules"
+  
+  // TensorRT performance alerts
+  rule {
+    alert = "TensorRTSlowInference"
+    expr  = "rate(loki_lines_total{service=\"tensorrt\"}[5m]) > 0 and on() (avg_over_time({service=\"tensorrt\"} |= \"inference\" | regexp \"(?P<time>\\\\d+\\\\.\\\\d+)ms\" | unwrap time [5m]) > 1000)"
+    for   = "2m"
+    labels = {
+      severity = "warning"
+      service  = "tensorrt"
+    }
+    annotations = {
+      summary     = "TensorRT inference is slow"
+      description = "TensorRT inference time is above 1000ms for 2 minutes"
+    }
+  }
+  
+  // GPU memory alerts
+  rule {
+    alert = "GPUMemoryHigh"
+    expr  = "rate(loki_lines_total{service=\"tensorrt\"}[5m]) > 0 and on() (avg_over_time({service=\"tensorrt\"} |= \"GPU memory\" | regexp \"(?P<memory>\\\\d+\\\\.\\\\d+)GB\" | unwrap memory [5m]) > 14)"
+    for   = "5m"
+    labels = {
+      severity = "critical"
+      service  = "tensorrt"
+    }
+    annotations = {
+      summary     = "GPU memory usage is critical"
+      description = "GPU memory usage is above 14GB for 5 minutes"
+    }
+  }
+  
+  // Redis stream lag alerts
+  rule {
+    alert = "RedisStreamLag"
+    expr  = "rate(loki_lines_total{service=\"brain3\"}[5m]) > 0 and on() (count_over_time({service=\"brain3\"} |= \"Redis stream\" |= \"lag\" [10m]) > 10)"
+    for   = "3m"
+    labels = {
+      severity = "warning"
+      service  = "redis"
+    }
+    annotations = {
+      summary     = "Redis stream processing lag detected"
+      description = "Redis stream lag messages detected for 3 minutes"
+    }
+  }
+}
+
+// Dashboard provisioning (optional)
+grafana.dashboard "four_brain_dashboards" {
+  folder = "Four-Brain System"
+  
+  dashboard {
+    title = "Four-Brain Logs Overview"
+    uid   = "four-brain-logs"
+    path  = "/etc/alloy/dashboards/logs-overview.json"
+  }
+  
+  dashboard {
+    title = "TensorRT Performance"
+    uid   = "tensorrt-performance"
+    path  = "/etc/alloy/dashboards/tensorrt-performance.json"
+  }
+}
+
+// Configuration validation
+logging {
+  level  = "info"
+  format = "json"
+  write_to = [loki.write.four_brain_loki.receiver]
+}

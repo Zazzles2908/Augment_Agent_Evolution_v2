@@ -1,0 +1,15 @@
+# Stage 1: CUDA 13.0 Core Dependencies (PyTorch moved to Stage 2)
+# Professional CUDA 13.0 stack for RTX 5070 Ti Blackwell
+# Created: 2025-08-06 AEST, Updated: 2025-08-08 AEST
+
+# Core Scientific Computing (from PyPI)
+--index-url https://pypi.org/simple/
+numpy==1.26.3
+scipy==1.11.4
+
+# Essential System Utilities
+psutil==5.9.0
+pyyaml==6.0.1
+requests==2.32.3
+tqdm==4.66.3
+six==1.16.0

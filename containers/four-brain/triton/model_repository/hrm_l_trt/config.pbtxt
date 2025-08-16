@@ -1,0 +1,149 @@
+# HRM L-Module (Low-level Execution) Configuration
+# Optimized for Blackwell GPU with NVFP4 precision
+# Always loaded for fast execution and retrieval
+
+name: "hrm_l_trt"
+platform: "tensorrt_plan"
+max_batch_size: 0
+version_policy: { all { }}
+
+input [
+  {
+    name: "input_ids"
+    data_type: TYPE_INT64
+    dims: [ -1, -1 ]
+  },
+  {
+    name: "attention_mask"
+    data_type: TYPE_INT64
+    dims: [ -1, -1 ]
+  },
+  {
+    name: "h_module_guidance"
+    data_type: TYPE_STRING
+    dims: [ -1 ]
+  },
+  {
+    name: "strategic_plan"
+    data_type: TYPE_STRING
+    dims: [ -1 ]
+  },
+  {
+    name: "execution_context"
+    data_type: TYPE_STRING
+    dims: [ -1 ]
+  }
+]
+
+output [
+  {
+    name: "execution_result"
+    data_type: TYPE_STRING
+    dims: [ -1 ]
+  },
+  {
+    name: "confidence"
+    data_type: TYPE_FP32
+    dims: [ -1 ]
+  },
+  {
+    name: "performance_metrics"
+    data_type: TYPE_STRING
+    dims: [ -1 ]
+  },
+  {
+    name: "convergence_score"
+    data_type: TYPE_FP32
+    dims: [ -1 ]
+  }
+]
+
+instance_group [
+  {
+    count: 1
+    kind: KIND_GPU
+    gpus: [ 0 ]
+  }
+]
+
+# Blackwell-specific optimizations with NVFP4
+optimization {
+  graph: {
+    level: 3
+  }
+  execution_accelerators: {
+    gpu_execution_accelerator: [
+      {
+        name: "tensorrt"
+        parameters: {
+          key: "precision_mode"
+          value: "NVFP4"
+        }
+      },
+      {
+        name: "tensorrt"
+        parameters: {
+          key: "max_workspace_size_bytes"
+          value: "1610612736"  # 1.5GB
+        }
+      },
+      {
+        name: "tensorrt"
+        parameters: {
+          key: "enable_thread_block_clustering"
+          value: "true"
+        }
+      },
+      {
+        name: "tensorrt"
+        parameters: {
+          key: "enable_tma_optimization"
+          value: "true"
+        }
+      },
+      {
+        name: "tensorrt"
+        parameters: {
+          key: "enable_dpx_instructions"
+          value: "true"
+        }
+      }
+    ]
+  }
+}
+
+# Dynamic batching optimized for fast execution
+dynamic_batching {
+  preferred_batch_size: [ 1, 2 ]
+  max_queue_delay_microseconds: 50
+}
+
+# Performance parameters
+parameters: {
+  key: "TRT_MAX_WORKSPACE_SIZE_BYTES"
+  value: {
+    string_value: "1610612736"
+  }
+}
+
+parameters: {
+  key: "TRT_NVFP4_ENABLE"
+  value: {
+    string_value: "1"
+  }
+}
+
+parameters: {
+  key: "TRT_BLACKWELL_OPTIMIZATIONS"
+  value: {
+    string_value: "1"
+  }
+}
+
+parameters: {
+  key: "TRT_FAST_EXECUTION_MODE"
+  value: {
+    string_value: "1"
+  }
+}
+

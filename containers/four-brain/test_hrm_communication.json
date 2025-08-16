@@ -1,0 +1,18 @@
+{
+  "input_data": {
+    "query": "Test HRM hierarchical reasoning system",
+    "context": "System integration validation test",
+    "task_type": "strategic_planning"
+  },
+  "context": {
+    "user_id": "system_test",
+    "priority": "high",
+    "test_mode": true
+  },
+  "constraints": {
+    "max_processing_time": 30,
+    "quality_threshold": 0.8
+  },
+  "max_iterations": 3,
+  "convergence_threshold": 0.8
+}

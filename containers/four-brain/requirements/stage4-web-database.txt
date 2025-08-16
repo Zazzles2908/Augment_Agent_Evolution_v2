@@ -1,0 +1,25 @@
+# Stage 4: Web Framework and Database
+# Professional web and database stack for Four-Brain services
+# Created: 2025-08-06 AEST
+
+# Web Framework
+fastapi==0.104.0
+uvicorn==0.24.0
+python-multipart==0.0.6
+pydantic==2.7.0
+pydantic-settings==2.0.3
+httpx==0.27.0
+aiohttp==3.11.12
+six==1.16.0
+
+# Database
+asyncpg==0.29.0
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.23
+redis==5.0.0
+aioredis>=2.0.1
+supabase==2.14.0
+
+# Security
+pyjwt>=2.8.0,<2.9.0
+cryptography>=42,<43

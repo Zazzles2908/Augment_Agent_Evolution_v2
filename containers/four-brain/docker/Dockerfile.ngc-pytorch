@@ -1,0 +1,49 @@
+# Option A: NGC PyTorch base for Four-Brain services
+# Blackwell-optimized PyTorch with CUDA userspace from NGC
+
+FROM nvcr.io/nvidia/pytorch:25.06-py3 AS runtime
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    TORCH_CUDA_ARCH_LIST="12.0" \
+    HF_HOME=/workspace/.cache/huggingface \
+    TRANSFORMERS_CACHE=/workspace/.cache/huggingface \
+    PYTHONPATH=/workspace/src:/workspace
+
+# Minimal OS deps (most are present in the NGC image already)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl wget ca-certificates git && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create workspace and caches
+WORKDIR /workspace
+RUN mkdir -p /workspace/src /workspace/logs /workspace/.cache /workspace/.cache/huggingface /workspace/.cache/torch && \
+    chmod -R 755 /workspace/.cache
+
+# Copy requirements staged set (use correct path within build context)
+# Build context is containers/four-brain, so requirements are under ./requirements
+COPY requirements/ /tmp/requirements/
+
+# Install dependencies using pip; keep TRT wheels if needed (prefer container-provided TRT)
+# Avoid downgrading core libs from NGC base and skip ModelOpt/TRT pins for now
+RUN pip install --no-cache-dir -r /tmp/requirements/stage3-ml-models.txt && \
+    pip install --no-cache-dir -r /tmp/requirements/stage4-web-database.txt && \
+    pip install --no-cache-dir -r /tmp/requirements/stage5-monitoring-dev.txt && \
+    rm -rf /tmp/requirements
+
+# Copy source
+COPY . /workspace/
+
+# Expose default brain ports
+EXPOSE 8001 8002 8003 8004
+
+# Entry point chooses module via BRAIN_ROLE like existing startup
+CMD ["/bin/bash", "-lc", "case \"$BRAIN_ROLE\" in \
+  embedding) exec python src/brains/embedding_service/main.py ;; \
+  reranker) exec python src/brains/reranker_service/reranker_service.py ;; \
+  intelligence) exec python src/brains/intelligence_service/intelligence_service.py ;; \
+  document) exec python src/brains/document_processor/main.py ;; \
+  orchestrator) exec python src/orchestrator_hub/hub_service.py ;; \
+  *) exec python src/main.py ;; \
+ esac"]
+

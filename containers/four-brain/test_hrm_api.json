@@ -1,0 +1,5 @@
+{
+  "model_name": "hrm_h_trt",
+  "model_type": "h_module", 
+  "precision": "fp8"
+}

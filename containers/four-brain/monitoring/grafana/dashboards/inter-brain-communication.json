@@ -1,0 +1,146 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Four-Brain Inter-Communication Dashboard",
+    "tags": ["four-brain", "redis-streams", "communication"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "10s",
+    "time": {
+      "from": "now-30m",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Redis Streams Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "redis_connected_clients",
+            "legendFormat": "Connected Clients"
+          },
+          {
+            "expr": "redis_keyspace_hits_total",
+            "legendFormat": "Cache Hits"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 6, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Stream Message Rates",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(four_brain_stream_messages_sent_total[5m])",
+            "legendFormat": "Messages Sent - {{brain_id}}"
+          },
+          {
+            "expr": "rate(four_brain_stream_messages_received_total[5m])",
+            "legendFormat": "Messages Received - {{brain_id}}"
+          }
+        ],
+        "yAxes": [
+          {"label": "Messages/sec", "min": 0},
+          {"show": false}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Stream Processing Latency",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(four_brain_stream_processing_duration_seconds_bucket[5m]))",
+            "legendFormat": "P95 Latency - {{brain_id}}"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(four_brain_stream_processing_duration_seconds_bucket[5m]))",
+            "legendFormat": "P99 Latency - {{brain_id}}"
+          }
+        ],
+        "yAxes": [
+          {"label": "Seconds", "min": 0},
+          {"show": false}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Memory Store Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "four_brain_memory_scores_stored_total",
+            "legendFormat": "Scores Stored"
+          },
+          {
+            "expr": "four_brain_memory_patterns_matched_total",
+            "legendFormat": "Patterns Matched"
+          },
+          {
+            "expr": "four_brain_memory_cache_hit_rate",
+            "legendFormat": "Cache Hit Rate"
+          }
+        ],
+        "yAxes": [
+          {"label": "Count/Rate", "min": 0},
+          {"show": false}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Self-Improvement Metrics",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "four_brain_reflections_performed_total",
+            "legendFormat": "Reflections Performed"
+          },
+          {
+            "expr": "four_brain_improvements_suggested_total",
+            "legendFormat": "Improvements Suggested"
+          },
+          {
+            "expr": "four_brain_improvements_implemented_total",
+            "legendFormat": "Improvements Implemented"
+          }
+        ],
+        "yAxes": [
+          {"label": "Count", "min": 0},
+          {"show": false}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Brain Performance Scores",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "four_brain_average_performance_score",
+            "legendFormat": "Average Score - {{brain_id}}"
+          },
+          {
+            "expr": "four_brain_best_performance_score",
+            "legendFormat": "Best Score - {{brain_id}}"
+          }
+        ],
+        "yAxes": [
+          {"label": "Score (0-1)", "min": 0, "max": 1},
+          {"show": false}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+# Stage 2: TensorRT 10.13.2 + FP4 Optimization + PyTorch Nightly
+# Professional TensorRT stack for Blackwell FP4 optimization with sm_120 support
+# Created: 2025-08-06 AEST, Updated: 2025-08-08 AEST
+
+# NOTE: PyTorch is provided by the NGC base image (25.06). Do not install torch here to avoid conflicts.
+# --index-url https://download.pytorch.org/whl/nightly/cu128
+# --find-links https://download.pytorch.org/whl/nightly/cu128/torch_stable.html
+# torch>=2.6.0.dev
+# torchvision>=0.21.0.dev
+# torchaudio>=2.6.0.dev
+
+# TensorRT Stack (optional). Prefer container-provided TRT for CUDA 13; omit -cu suffix to avoid mismatches.
+# tensorrt==10.13.2.6
+# tensorrt-cu13==10.13.2.6
+
+# ONNX Support (compatible with PyTorch nightly)
+--index-url https://pypi.org/simple/
+onnx>=1.16.0
+onnxruntime-gpu>=1.18.0
+
+# Blackwell Optimizations
+nvidia-modelopt>=0.31.0
+bitsandbytes>=0.46.0
+peft==0.13.2
+optimum==1.21.0
+
+# Quantization Support
+accelerate==0.34.2

@@ -1,0 +1,42 @@
+# Stage 3: Machine Learning Models and Libraries
+# Professional ML stack for Four-Brain system
+# Created: 2025-08-06 AEST
+
+# Core ML Libraries
+transformers==4.51.3
+sentence-transformers==3.3.1
+scikit-learn==1.3.2
+pandas==2.1.4
+datasets==3.1.0
+huggingface-hub==0.30.0
+
+# Export/ONNX toolchain (for Triton deployment)
+onnx>=1.15.0
+onnxruntime>=1.18.0
+optimum>=1.19.0
+onnxscript>=0.1.0
+
+# GPU Utilities
+GPUtil==1.4.0
+# Use pynvml from NGC image; avoid pin conflicts
+pynvml>=11.5.0
+# Quantization for 4-bit/8-bit
+bitsandbytes>=0.46.0
+# Accelerate needed for device_map=auto CPU offload
+accelerate>=0.33.0
+
+# Triton client for services that call Triton
+tritonclient[all]>=2.48.0
+
+
+
+# Text Processing - Fixed compatibility
+tokenizers>=0.21,<0.22
+sentencepiece==0.2.0
+
+
+# Document processing
+# Docling base; version pinned conservatively to 1.x until 2.x validated in this stack
+# Do NOT add pycuda here until TRT acceleration is enabled with a real engine
+# If this fails to install, we will capture logs and adjust system dependencies minimally
+docling>=1.0.0,<2.0.0

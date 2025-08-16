@@ -1,0 +1,645 @@
+# Four-Brain Turnkey System - Complete Docker Compose
+# 12-service orchestration with RTX 5070 Ti GPU sharing (includes dashboard)
+# Generated: 2025-07-23 AEST, Updated: 2025-08-05 AEST
+# BREAKTHROUGH: TensorRT 10.13.2 + CUDA 13.0 + Official SM_120 Support!
+
+# Load environment variables from container_project .env
+x-common-env: &common-env
+  env_file:
+    - ../.env
+    - ../config/production.env
+
+services:
+  # ===== INFRASTRUCTURE LAYER =====
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: four-brain-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: Australia/Melbourne
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    # CRITICAL: Service-level resource limits (enforced by docker-compose)
+    mem_limit: ${POSTGRES_MEM_LIMIT:-4g}
+    cpus: ${POSTGRES_CPUS:-2}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    networks:
+      - four-brain-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: four-brain-redis
+    environment:
+      TZ: Australia/Melbourne
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    # CRITICAL: Service-level resource limits (enforced by docker-compose)
+    mem_limit: ${REDIS_MEM_LIMIT:-2g}
+    cpus: ${REDIS_CPUS:-1}
+    volumes:
+      - ./augmentai-redis:/data
+      - ./data/configs/redis/augmentai-redis.conf:/etc/redis/redis.conf:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    networks:
+      - four-brain-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    command: redis-server --maxmemory 2gb --maxmemory-policy allkeys-lru --save 60 1000
+
+  # ===== FOUR-BRAIN SERVICES =====
+  embedding-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ngc-pytorch
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        HF_TOKEN: ${HF_TOKEN:-}
+        DOCKER_BUILDKIT: 1
+        BUILDKIT_PROGRESS: plain
+        BUILD_TIMESTAMP: ${BUILD_TIMESTAMP:-$(date +%Y%m%d_%H%M%S)}
+      target: runtime
+    container_name: four-brain-embedding
+    <<: *common-env
+    environment:
+      BRAIN_ROLE: embedding
+      PORT: 8001
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@four-brain-postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/0
+      PYTHONPATH: /workspace/src
+      TRITON_URL: "http://triton:8000"
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      HF_TOKEN: ${HF_TOKEN}
+      # CPU-only for Brain 1 (Triton handles GPU inference)
+      OMP_NUM_THREADS: ${EMBEDDING_CPUS:-6}
+      MKL_NUM_THREADS: ${EMBEDDING_CPUS:-6}
+      OPENBLAS_NUM_THREADS: ${EMBEDDING_CPUS:-6}
+      TORCH_NUM_THREADS: ${EMBEDDING_CPUS:-6}
+      TOKENIZERS_PARALLELISM: "false"
+    ports:
+      - "${EMBEDDING_PORT:-8011}:8001"
+    mem_limit: ${EMBEDDING_MEM_LIMIT:-8g}
+    cpus: ${EMBEDDING_CPUS:-6}
+    volumes:
+      - ../src:/workspace/src
+      - ../../models:/workspace/models:ro
+      - embedding_logs:/workspace/logs
+      - embedding_cache:/workspace/.cache
+    networks:
+      - four-brain-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      triton:
+        condition: service_started
+    restart: unless-stopped
+
+  reranker-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ngc-pytorch
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        HF_TOKEN: ${HF_TOKEN:-}
+        DOCKER_BUILDKIT: 1
+        BUILDKIT_PROGRESS: plain
+        BUILD_TIMESTAMP: ${BUILD_TIMESTAMP:-$(date +%Y%m%d_%H%M%S)}
+      target: runtime
+    container_name: four-brain-reranker
+    <<: *common-env
+    environment:
+      BRAIN_ROLE: reranker
+      PORT: 8002
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@four-brain-postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/1
+      PYTHONPATH: /workspace/src
+      TRITON_URL: "http://triton:8000"
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      HF_TOKEN: ${HF_TOKEN}
+      # CPU-only for Brain 2 (Triton handles GPU inference)
+      OMP_NUM_THREADS: ${RERANKER_CPUS:-4}
+      MKL_NUM_THREADS: ${RERANKER_CPUS:-4}
+      OPENBLAS_NUM_THREADS: ${RERANKER_CPUS:-4}
+      TORCH_NUM_THREADS: ${RERANKER_CPUS:-4}
+      TOKENIZERS_PARALLELISM: "false"
+    ports:
+      - "${RERANKER_PORT:-8012}:8002"
+    mem_limit: ${RERANKER_MEM_LIMIT:-6g}
+    cpus: ${RERANKER_CPUS:-4}
+    volumes:
+      - ../src:/workspace/src
+      - ../../models:/workspace/models:ro
+      - reranker_logs:/workspace/logs
+      - reranker_cache:/workspace/.cache
+    networks:
+      - four-brain-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      triton:
+        condition: service_started
+    restart: unless-stopped
+
+  intelligence-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ngc-pytorch
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        HF_TOKEN: ${HF_TOKEN:-}
+        # Hardware optimization for RTX 5070 Ti + 16-core CPU
+        DOCKER_BUILDKIT: 1
+        BUILDKIT_PROGRESS: plain
+        BUILD_TIMESTAMP: ${BUILD_TIMESTAMP:-$(date +%Y%m%d_%H%M%S)}
+      target: runtime
+    runtime: nvidia
+    # Hardware optimization for RTX 5070 Ti system (12 cores available, 32GB RAM)
+    shm_size: 4g  # Increase shared memory for PyTorch DataLoader IPC
+    container_name: four-brain-intelligence
+    <<: *common-env
+    environment:
+      BRAIN_ROLE: intelligence
+      PORT: 8003
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@four-brain-postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/2
+      PYTHONPATH: /workspace/src
+      # CUDA settings for RTX 5070 Ti (sm_120 architecture)
+      NVIDIA_VISIBLE_DEVICES: "all"
+      CUDA_VISIBLE_DEVICES: "0"
+      NVIDIA_DRIVER_CAPABILITIES: "compute,utility"
+      PYTORCH_CUDA_ALLOC_CONF: "backend:cudaMallocAsync,max_split_size_mb:512"
+      # GPU Memory Management (15% allocation for Brain-3 - API-BASED MODEL)
+      CUDA_MEMORY_FRACTION: "0.15"
+      TORCH_CUDA_MEMORY_FRACTION: "0.15"
+      MAX_VRAM_USAGE: "0.15"
+      # TORCH_CUDA_ARCH_LIST removed - not needed for runtime, only compilation
+      # Supabase configuration - UPDATED KEYS
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      # Intelligence service specific Supabase configuration (with INTELLIGENCE_ prefix) - UPDATED KEYS
+      INTELLIGENCE_SUPABASE_URL: ${INTELLIGENCE_SUPABASE_URL}
+      INTELLIGENCE_SUPABASE_ANON_KEY: ${INTELLIGENCE_SUPABASE_ANON_KEY}
+      INTELLIGENCE_SUPABASE_SERVICE_ROLE_KEY: ${INTELLIGENCE_SUPABASE_SERVICE_ROLE_KEY}
+      # K2 API configuration
+      K2_API_KEY: ${K2_API_KEY}
+      # GLM Configuration (Z.AI Platform)
+      GLM_API_KEY: ${GLM_API_KEY}
+      GLM_API_URL: ${GLM_API_URL}
+      GLM_MODEL: ${GLM_MODEL}
+      GLM_MODEL_SECONDARY: ${GLM_MODEL_SECONDARY}
+      GLM_TIMEOUT: ${GLM_TIMEOUT}
+      GLM_MAX_TOKENS: ${GLM_MAX_TOKENS}
+      GLM_TEMPERATURE: ${GLM_TEMPERATURE}
+      GLM_TOP_P: ${GLM_TOP_P}
+      GLM_THINKING_ENABLED: ${GLM_THINKING_ENABLED}
+      GLM_TEST_MODE: ${GLM_TEST_MODE}
+      GLM_AGENT_API_URL: ${GLM_AGENT_API_URL}
+      GLM_AGENT_TIMEOUT: ${GLM_AGENT_TIMEOUT}
+      GLM_ASYNC_RESULT_TIMEOUT: ${GLM_ASYNC_RESULT_TIMEOUT:-300}
+      GLM_ASYNC_POLL_INTERVAL: ${GLM_ASYNC_POLL_INTERVAL:-2}
+      # Four-Brain System v2 Configuration
+      # CPU threading (match service CPU limit)
+      OMP_NUM_THREADS: "4"
+      MKL_NUM_THREADS: "4"
+      OPENBLAS_NUM_THREADS: "4"
+      TORCH_NUM_THREADS: "4"
+      KMP_AFFINITY: "granularity=fine,compact,1,0"
+      KMP_BLOCKTIME: "1"
+      TOKENIZERS_PARALLELISM: "false"
+
+      POSTGRES_CONNECTION_STRING: postgresql://postgres:${POSTGRES_PASSWORD:-ai_secure_2024}@four-brain-postgres:5432/${POSTGRES_DB:-ai_system}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 2
+      # Redis Streams Configuration
+      REDIS_STREAMS_ENABLED: true
+      REDIS_CONSUMER_GROUP: brain-group-intelligence
+      REDIS_CONSUMER_ID: intelligence-consumer-1
+      # Agentic Loop Configuration
+      AGENTIC_LOOP_ENABLED: true
+      AGENTIC_LOOP_TIMEOUT: 300
+      # Performance optimizations
+      TORCH_COMPILE: 1
+      CUDA_GRAPHS: 1
+      TORCHDYNAMO_FULLGRAPH: 1
+      NCCL_P2P_DISABLE: 1
+      # Hugging Face cache directory (replaces deprecated TRANSFORMERS_CACHE)
+      HF_HOME: /workspace/.cache/huggingface
+      TRANSFORMERS_CACHE: /workspace/.cache/huggingface
+      HF_TOKEN: ${HF_TOKEN:-}
+      # HRM Configuration for Intelligence Service
+      HRM_ENABLED: ${HRM_ENABLED:-true}
+      BLACKWELL_OPTIMIZATIONS: ${BLACKWELL_OPTIMIZATIONS:-true}
+      HRM_MAX_ITERATIONS: ${HRM_MAX_ITERATIONS:-10}
+      HRM_CONVERGENCE_THRESHOLD: ${HRM_CONVERGENCE_THRESHOLD:-0.85}
+      HRM_METRICS_ENABLED: ${HRM_METRICS_ENABLED:-true}
+    ports:
+      - "8013:8003"
+    # CRITICAL: Service-level resource limits (enforced by docker-compose)
+    mem_limit: 8g
+    cpus: '4'
+    volumes:
+      - ../src:/workspace/src
+      - ../../models:/workspace/models:ro  # FIXED: Models from actual location
+      - intelligence_logs:/workspace/logs
+      - intelligence_cache:/workspace/.cache
+      - intelligence_cache:/workspace/cache  # Writable cache for model operations
+      - ../../models/cache:/workspace/engines:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    networks:
+      - four-brain-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      # reranker-service removed
+    # GPU disabled for this service under Strategy A
+    restart: unless-stopped
+
+  document-processor:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ngc-pytorch
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        HF_TOKEN: ${HF_TOKEN:-}
+        DOCKER_BUILDKIT: 1
+        BUILDKIT_PROGRESS: plain
+        BUILD_TIMESTAMP: ${BUILD_TIMESTAMP:-$(date +%Y%m%d_%H%M%S)}
+      target: runtime
+    runtime: nvidia
+    shm_size: 4g
+    container_name: four-brain-document
+    <<: *common-env
+    environment:
+      BRAIN_ROLE: document_processor
+      PORT: 8004
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@four-brain-postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/3
+      PYTHONPATH: /workspace/src
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      HF_TOKEN: ${HF_TOKEN}
+      # GPU settings for Docling (on-demand GPU usage)
+      NVIDIA_VISIBLE_DEVICES: "all"
+      CUDA_VISIBLE_DEVICES: "0"
+      NVIDIA_DRIVER_CAPABILITIES: "compute,utility"
+      PYTORCH_CUDA_ALLOC_CONF: "backend:cudaMallocAsync,max_split_size_mb:512"
+      # Limited GPU memory for Brain 4 (on-demand Docling)
+      CUDA_MEMORY_FRACTION: ${DOCUMENT_CUDA_MEMORY_FRACTION:-0.10}
+      TORCH_CUDA_MEMORY_FRACTION: ${DOCUMENT_CUDA_MEMORY_FRACTION:-0.10}
+      MAX_VRAM_USAGE: ${DOCUMENT_CUDA_MEMORY_FRACTION:-0.10}
+      # CPU threading
+      OMP_NUM_THREADS: ${DOCUMENT_CPUS:-6}
+      MKL_NUM_THREADS: ${DOCUMENT_CPUS:-6}
+      OPENBLAS_NUM_THREADS: ${DOCUMENT_CPUS:-6}
+      TORCH_NUM_THREADS: ${DOCUMENT_CPUS:-6}
+      TOKENIZERS_PARALLELISM: "false"
+      # Docling configuration
+      DOCLING_GPU_ENABLED: "true"
+      DOCLING_BATCH_SIZE: "4"
+    ports:
+      - "${DOCUMENT_PORT:-8014}:8004"
+    mem_limit: ${DOCUMENT_MEM_LIMIT:-12g}
+    cpus: ${DOCUMENT_CPUS:-6}
+    volumes:
+      - ../src:/workspace/src
+      - ../../models:/workspace/models:ro
+      - document_logs:/workspace/logs
+      - document_cache:/workspace/.cache
+      - document_storage:/workspace/storage
+    networks:
+      - four-brain-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      triton:
+        condition: service_started
+    restart: unless-stopped
+
+  orchestrator-hub:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.cuda13-tensorrt
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        HF_TOKEN: ${HF_TOKEN}
+        # Hardware optimization for RTX 5070 Ti + 16-core CPU
+        DOCKER_BUILDKIT: 1
+        BUILDKIT_PROGRESS: plain
+        BUILD_TIMESTAMP: ${BUILD_TIMESTAMP:-$(date +%Y%m%d_%H%M%S)}
+      target: runtime
+    runtime: nvidia
+    # Hardware optimization for RTX 5070 Ti system (12 cores available, 32GB RAM)
+    shm_size: 4g  # Increase shared memory for PyTorch DataLoader IPC
+    container_name: four-brain-orchestrator
+    environment:
+      BRAIN_ROLE: orchestrator
+      PORT: 9098
+      REDIS_URL: redis://redis:6379/4
+      # K2/Moonshot configuration
+      K2_API_KEY: ${K2_API_KEY}
+      K2_API_URL: ${K2_API_URL:-https://api.moonshot.cn/v1/chat/completions}
+      K2_MODEL: ${K2_MODEL:-kimi-thinking-preview}
+      # Supabase Configuration (optional; service degrades gracefully if unset)
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      NVIDIA_VISIBLE_DEVICES: "all"
+      CUDA_VISIBLE_DEVICES: "0"
+      TORCH_CUDA_ARCH_LIST: '120'
+      CUDA_LAUNCH_BLOCKING: 1
+      TORCH_COMPILE: 1
+      CUDA_GRAPHS: 1
+      TORCHDYNAMO_FULLGRAPH: 1
+      NCCL_P2P_DISABLE: 1
+      # Disable smoke mode to initialize all components
+      PHASE1_SMOKE: "0"
+      TRITON_URL: "http://triton:8000"
+      # HRM Configuration
+      HRM_ENABLED: ${HRM_ENABLED:-true}
+      BLACKWELL_OPTIMIZATIONS: ${BLACKWELL_OPTIMIZATIONS:-true}
+      HRM_MAX_ITERATIONS: ${HRM_MAX_ITERATIONS:-10}
+      HRM_CONVERGENCE_THRESHOLD: ${HRM_CONVERGENCE_THRESHOLD:-0.85}
+      HRM_H_MODULE_PRECISION: ${HRM_H_MODULE_PRECISION:-fp8}
+      HRM_L_MODULE_PRECISION: ${HRM_L_MODULE_PRECISION:-nvfp4}
+      ENABLE_THREAD_BLOCK_CLUSTERING: ${ENABLE_THREAD_BLOCK_CLUSTERING:-true}
+      ENABLE_TMA_OPTIMIZATION: ${ENABLE_TMA_OPTIMIZATION:-true}
+      ENABLE_DPX_INSTRUCTIONS: ${ENABLE_DPX_INSTRUCTIONS:-true}
+      HRM_METRICS_ENABLED: ${HRM_METRICS_ENABLED:-true}
+    ports:
+      - "9018:9098"
+    volumes:
+      - ../src:/workspace/src
+      - ../../models:/workspace/models:ro  # FIXED: Models from actual location
+      - orchestrator_logs:/workspace/logs
+      - orchestrator_cache:/workspace/.cache
+      - orchestrator_cache:/workspace/cache  # Writable cache for model operations
+    networks:
+      - four-brain-network
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      triton:
+        condition: service_started
+    # GPU disabled for this service under Strategy A
+    restart: unless-stopped
+
+  # ===== MONITORING STACK =====
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: four-brain-prometheus
+    ports:
+      - "9090:9090"
+    # CRITICAL: Service-level resource limits (enforced by docker-compose)
+    mem_limit: 2g
+    cpus: '1'
+    volumes:
+      - ../config/monitoring/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    networks:
+      - four-brain-network
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-remote-write-receiver'  # Enable remote write for Alloy integration
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: four-brain-grafana
+    ports:
+      - "3000:3000"
+    # CRITICAL: Service-level resource limits (enforced by docker-compose)
+    mem_limit: 1g
+    cpus: '0.5'
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: redis-datasource
+    volumes:
+      - ./config/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./config/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - grafana_data:/var/lib/grafana
+    networks:
+      - four-brain-network
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    container_name: four-brain-loki
+    ports:
+      - "3100:3100"
+    # CRITICAL: Service-level resource limits (enforced by docker-compose)
+    mem_limit: 1g
+    cpus: '0.5'
+    volumes:
+      - ../config/monitoring/loki:/etc/loki
+      - loki_data:/loki
+    networks:
+      - four-brain-network
+    restart: unless-stopped
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: four-brain-alloy
+    ports:
+      - "12345:12345"
+    volumes:
+      - ../config/monitoring/alloy:/etc/alloy
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - alloy_data:/var/lib/alloy
+    command: ["run", "/etc/alloy/config.alloy", "--server.http.listen-addr=0.0.0.0:12345"]
+    networks:
+      - four-brain-network
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+
+  # Stage 2: Secure Tunnel - Nginx Reverse Proxy
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: four-brain-nginx-proxy
+    ports:
+      - "443:443"    # HTTPS for secure tunnel
+      - "80:80"      # HTTP redirect to HTTPS
+      - "8080:8080"  # Nginx status page
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_ssl_certs:/etc/nginx/ssl
+      - nginx_logs:/var/log/nginx
+
+    networks:
+      - four-brain-network
+    depends_on:
+      - orchestrator-hub
+      - embedding-service
+      - reranker-service
+      - intelligence-service
+      - document-processor
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  triton:
+    image: nvcr.io/nvidia/tritonserver:25.06-py3
+    container_name: triton
+    shm_size: 2g
+    mem_limit: ${TRITON_MEM_LIMIT:-16g}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+    command: [
+      "tritonserver",
+      "--model-repository=/models",
+      "--model-control-mode=explicit",
+      "--strict-readiness=false",
+      "--allow-gpu-metrics=true",
+      "--allow-cpu-metrics=true",
+      "--cuda-memory-pool-byte-size=0:1073741824",
+      "--pinned-memory-pool-byte-size=536870912",
+      "--buffer-manager-thread-count=8",
+      "--log-info=true",
+      "--log-warning=true",
+      "--log-error=true",
+      "--log-verbose=1",
+      "--exit-timeout-secs=30"
+    ]
+    ports:
+      - "${TRITON_HTTP_PORT:-8000}:8000"  # HTTP
+      - "${TRITON_GRPC_PORT:-8001}:8001"  # gRPC
+      - "${TRITON_METRICS_PORT:-8002}:8002"  # Metrics
+    volumes:
+      - C:\Project\Augment_Agent_Evolution\containers\four-brain\triton\model_repository:/models
+      - C:\Project\Augment_Agent_Evolution\cache:/cache:rw
+    networks:
+      - four-brain-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  # ===== FOUR-BRAIN DASHBOARD =====
+  four-brain-dashboard:
+    build:
+      context: ../../dashboard
+      dockerfile: Dockerfile
+    container_name: four-brain-dashboard
+    environment:
+      - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - NEXT_PUBLIC_API_BASE_URL=http://orchestrator-hub:9098
+      - NEXT_PUBLIC_FOUR_BRAIN_GATEWAY_URL=http://orchestrator-hub:9098/api
+      - NEXT_PUBLIC_APP_NAME=Four-Brain System v2
+      - NEXT_PUBLIC_APP_VERSION=1.0.0
+      - NEXT_PUBLIC_ENVIRONMENT=production
+    ports:
+      - "3001:3000"
+    networks:
+      - four-brain-network
+    depends_on:
+      - orchestrator-hub
+      - embedding-service
+      - reranker-service
+      - intelligence-service
+      - document-processor
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# ===== NETWORKS =====
+networks:
+  four-brain-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.driver.mtu: "1500"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+
+# ===== VOLUMES =====
+volumes:
+  postgres_data:
+  redis_data:
+  embedding_logs:
+  embedding_cache:
+  reranker_logs:
+  reranker_cache:
+  intelligence_logs:
+  intelligence_cache:
+  document_logs:
+  document_cache:
+  orchestrator_logs:
+  orchestrator_cache:
+  document_storage:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+  alloy_data:
+  nginx_ssl_certs:
+  nginx_logs:

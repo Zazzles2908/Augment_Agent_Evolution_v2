@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 60s
+  evaluation_interval: 60s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# MINIMAL PROMETHEUS CONFIGURATION - LET ALLOY HANDLE ALL SCRAPING
+# Only self-monitoring to prevent duplicate scraping
+
+scrape_configs:
+  # Self-monitoring only
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']  # Internal port (mapped from 9093 externally)
+    scrape_interval: 120s

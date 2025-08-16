@@ -1,0 +1,60 @@
+{
+  "system": {
+    "gpu_available": true,
+    "total_gpu_memory": 15.92047119140625,
+    "total_vram_required_8bit": 8.5,
+    "total_vram_required_4bit": 5.5,
+    "recommended_strategy": "sequential_loading",
+    "quantization_strategy": "8bit",
+    "models_verified": 4,
+    "models_with_errors": 0,
+    "critical_errors": []
+  },
+  "models": {
+    "brain1": {
+      "verified": true,
+      "recommended_config": {
+        "quantization": "8bit",
+        "model_id": "qwen3-embedding-4b",
+        "version": "3.0",
+        "local_path": "/workspace/models/qwen3/embedding-4b"
+      },
+      "warnings": [],
+      "errors": []
+    },
+    "brain2": {
+      "verified": true,
+      "recommended_config": {
+        "quantization": "8bit",
+        "model_id": "qwen3-reranker-4b",
+        "version": "3.0",
+        "local_path": "/workspace/models/qwen3/reranker-4b"
+      },
+      "warnings": [],
+      "errors": []
+    },
+    "brain3": {
+      "verified": true,
+      "recommended_config": {
+        "model_id": "kimi-k2",
+        "version": "k2.0",
+        "local_path": null
+      },
+      "warnings": [],
+      "errors": []
+    },
+    "brain4": {
+      "verified": true,
+      "recommended_config": {
+        "quantization": "none",
+        "model_id": "docling",
+        "version": "1.0.0",
+        "local_path": null
+      },
+      "warnings": [],
+      "errors": []
+    }
+  },
+  "generated_at": 1754359091.0830956,
+  "verification_version": "1.0"
+}

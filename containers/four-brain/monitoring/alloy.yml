@@ -1,0 +1,157 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+// Prometheus metrics collection
+prometheus.scrape "four_brain_metrics" {
+  targets = [
+    {"__address__" = "four-brain-brain1:8001"},
+    {"__address__" = "four-brain-brain2:8002"},
+    {"__address__" = "four-brain-brain3:8003"},
+    {"__address__" = "four-brain-brain4:8004"},
+  ]
+  forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "60s"  // Increased from 15s to reduce timestamp conflicts
+  scrape_timeout = "30s"   // Add explicit timeout
+  metrics_path = "/metrics"
+}
+
+// Note: Redis and Postgres don't expose HTTP metrics endpoints
+// Use redis_exporter and postgres_exporter for metrics collection
+// prometheus.scrape "infrastructure_metrics" {
+//   targets = [
+//     {"__address__" = "postgres:5432"},
+//     {"__address__" = "redis:6379"},
+//   ]
+//   forward_to = [prometheus.remote_write.default.receiver]
+//   scrape_interval = "30s"
+//   metrics_path = "/metrics"
+// }
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+// Docker container logs collection
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+  refresh_interval = "5s"
+}
+
+discovery.relabel "four_brain_containers" {
+  targets = discovery.docker.containers.targets
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex = "four-brain-.*"
+    action = "keep"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label = "container"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label = "service"
+  }
+}
+
+loki.source.docker "four_brain_logs" {
+  host = "unix:///var/run/docker.sock"
+  targets = discovery.relabel.four_brain_containers.output
+  forward_to = [loki.process.four_brain_logs.receiver]
+  refresh_interval = "5s"
+}
+
+// File-based log collection for application logs
+// DISABLED: Applications use Docker stdout/stderr logging, not file-based logs
+// Docker logs are collected via loki.source.docker above
+// loki.source.file "app_logs" {
+//   targets = [
+//     {__path__ = "/var/log/four-brain/*.log", job = "four-brain-app"},
+//   ]
+//   forward_to = [loki.process.four_brain_logs.receiver]
+// }
+
+// Log processing and enrichment for Docker logs
+loki.process "four_brain_logs" {
+  forward_to = [loki.write.default.receiver]
+
+  // Extract log level from Docker logs
+  stage.regex {
+    expression = "(?P<timestamp>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[\\+\\-]\\d{2}:\\d{2})\\s+(?P<level>\\w+)\\s+(?P<message>.*)"
+  }
+
+  stage.labels {
+    values = {
+      level = "",
+    }
+  }
+
+  stage.timestamp {
+    source = "timestamp"
+    format = "RFC3339"
+  }
+
+  stage.output {
+    source = "message"
+  }
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+// Custom metrics collection for Four-Brain specific metrics
+prometheus.scrape "custom_four_brain" {
+  targets = [
+    {"__address__" = "four-brain-brain1:8001", "__metrics_path__" = "/custom-metrics"},
+    {"__address__" = "four-brain-brain2:8002", "__metrics_path__" = "/custom-metrics"},
+    {"__address__" = "four-brain-brain3:8003", "__metrics_path__" = "/custom-metrics"},
+    {"__address__" = "four-brain-brain4:8004", "__metrics_path__" = "/custom-metrics"},
+  ]
+  forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "120s"  // Reduced frequency from 30s to 120s
+  scrape_timeout = "30s"    // Add explicit timeout
+}
+
+// Redis Streams metrics - DISABLED: Redis doesn't expose HTTP metrics
+// Use redis_exporter or implement custom metrics endpoint for Redis monitoring
+// prometheus.scrape "redis_streams" {
+//   targets = [
+//     {"__address__" = "redis:6379"},
+//   ]
+//   forward_to = [prometheus.remote_write.default.receiver]
+//   scrape_interval = "15s"
+//   metrics_path = "/streams-metrics"
+// }
+
+// Self-grading metrics
+prometheus.scrape "self_grading" {
+  targets = [
+    {"__address__" = "four-brain-brain1:8001", "__metrics_path__" = "/grading-metrics"},
+    {"__address__" = "four-brain-brain2:8002", "__metrics_path__" = "/grading-metrics"},
+    {"__address__" = "four-brain-brain3:8003", "__metrics_path__" = "/grading-metrics"},
+    {"__address__" = "four-brain-brain4:8004", "__metrics_path__" = "/grading-metrics"},
+  ]
+  forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "300s"  // Reduced frequency from 60s to 300s (5 minutes)
+  scrape_timeout = "30s"    // Add explicit timeout
+}
+
+// Memory store metrics
+prometheus.scrape "memory_store" {
+  targets = [
+    {"__address__" = "four-brain-brain1:8001", "__metrics_path__" = "/memory-metrics"},
+    {"__address__" = "four-brain-brain2:8002", "__metrics_path__" = "/memory-metrics"},
+    {"__address__" = "four-brain-brain3:8003", "__metrics_path__" = "/memory-metrics"},
+    {"__address__" = "four-brain-brain4:8004", "__metrics_path__" = "/memory-metrics"},
+  ]
+  forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "180s"  // Reduced frequency from 30s to 180s (3 minutes)
+  scrape_timeout = "30s"    // Add explicit timeout
+}

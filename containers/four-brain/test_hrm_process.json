@@ -1,0 +1,16 @@
+{
+  "input_data": {
+    "query": "Test HRM hierarchical reasoning",
+    "context": "System validation test"
+  },
+  "context": {
+    "user_id": "test_user",
+    "priority": "high"
+  },
+  "constraints": {
+    "max_processing_time": 30,
+    "quality_threshold": 0.8
+  },
+  "max_iterations": 5,
+  "convergence_threshold": 0.8
+}
