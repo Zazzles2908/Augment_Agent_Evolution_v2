@@ -1,0 +1,12 @@
+**/__pycache__/
+**/.git/
+**/.venv/
+**/.mypy_cache/
+**/.pytest_cache/
+**/*.pt
+**/*.onnx
+**/*.plan
+**/*.ckpt
+**/*.log
+**/*.tmp
+

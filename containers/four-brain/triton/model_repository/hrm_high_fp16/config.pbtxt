@@ -1,0 +1,21 @@
+name: "hrm_high_fp16"
+backend: "tensorrt"
+max_batch_size: 8
+input [
+  { name: "input_ids"      data_type: TYPE_INT64 dims: [-1] },
+  { name: "attention_mask" data_type: TYPE_INT64 dims: [-1] }
+]
+output [ { name: "logits" data_type: TYPE_FP16 dims: [-1] } ]
+instance_group [ { kind: KIND_GPU count: 1 } ]
+dynamic_batching { preferred_batch_size: [2,4,8] max_queue_delay_microseconds: 2000 }
+parameters: { key: "precision_mode" value: { string_value: "FP16" } }
+optimization {
+  execution_accelerators { gpu_execution_accelerator: [ { name: "tensorrt" } ] }
+}
+# Optimization profiles (min/opt/max) — HRM High FP16
+profile {
+  name: "profile_0"
+  inputs: { key: "input_ids"      value: { min: [1,128], opt: [2,256], max: [4,512] } }
+  inputs: { key: "attention_mask" value: { min: [1,128], opt: [2,256], max: [4,512] } }
+}
+# Blackwell note: keep FP16 for control stability; revisit FP8 only after accuracy guardrails.

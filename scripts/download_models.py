@@ -37,7 +37,7 @@ MODELS_CONFIG = {
         "description": "Reranker Service - Qwen3-Reranker-8B (official 8B reranker model)"
     },
     "hrm_model_architecture": {
-        "repo_id": "DOWNLOADED",  # Already downloaded HRM model architecture
+        "repo_id": "DOWNLOADED",  # HRM is local-only; no public HF repo
         "local_dir": "models/hrm",
         "description": "HRM - Complete PyTorch model architecture (27M parameters, brain-inspired)"
     },
@@ -65,16 +65,32 @@ def check_disk_space():
         return True  # Continue anyway
 
 def download_model(model_name, config):
-    """Download a single model"""
-    logger.info(f"🔄 Downloading {config['description']}...")
+    """Download a single model or create if local-only."""
+    logger.info(f"🔄 Preparing {config['description']}...")
     logger.info(f"   Repository: {config['repo_id']}")
     logger.info(f"   Local path: {config['local_dir']}")
-    
+
+    # HRM is local-only: create from source if not present
+    if model_name == "hrm_model_architecture":
+        os.makedirs(config['local_dir'], exist_ok=True)
+        hrm_src = Path(config['local_dir']) / "hrm_act_v1.py"
+        hrm_ckpt = Path(config['local_dir']) / "hrm_model.pth"
+        hrm_cfg = Path(config['local_dir']) / "hrm_config.json"
+        if hrm_ckpt.exists() and hrm_cfg.exists():
+            logger.info("✅ HRM local checkpoint present; skipping creation")
+            return True
+        if hrm_src.exists():
+            logger.info("ℹ️ HRM source present (hrm_act_v1.py). Skipping HF download.")
+            logger.info("   Note: Checkpoint creation/export to ONNX/TRT will run in later steps.")
+            return True
+        logger.error("❌ HRM source not found (models/hrm/hrm_act_v1.py). Cannot proceed with HRM.")
+        return False
+
     try:
         # Create directory if it doesn't exist
         os.makedirs(config['local_dir'], exist_ok=True)
-        
-        # Download model
+
+        # Download model from HF
         snapshot_download(
             repo_id=config['repo_id'],
             local_dir=config['local_dir'],
@@ -82,48 +98,70 @@ def download_model(model_name, config):
             resume_download=True,  # Resume if interrupted
             cache_dir=None  # Don't use HF cache, download directly
         )
-        
+
         logger.info(f"✅ Successfully downloaded {model_name}")
         return True
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to download {model_name}: {e}")
         return False
 
 def verify_model(model_name, config):
-    """Verify model was downloaded correctly"""
+    """Verify model presence and integrity."""
     model_path = Path(config['local_dir'])
-    
+
     if not model_path.exists():
         logger.error(f"❌ Model directory not found: {model_path}")
         return False
-    
-    # Check for essential files
-    essential_files = ['config.json']
-    if 'reranker' in model_name:
-        essential_files.extend(['tokenizer.json'])  # Reranker models use safetensors
-    elif 'embedding' in model_name:
-        essential_files.extend(['tokenizer.json'])  # Embedding models use safetensors
-    
+
+    # HRM local verification: expect source OR checkpoint + config
+    if model_name == "hrm_model_architecture":
+        src_ok = (model_path / "hrm_act_v1.py").exists()
+        ckpt_ok = (model_path / "hrm_model.pth").exists() and (model_path / "hrm_config.json").exists()
+        if not (src_ok or ckpt_ok):
+            missing = []
+            if not src_ok:
+                missing.append('hrm_act_v1.py')
+            if not ckpt_ok:
+                missing.extend(['hrm_model.pth','hrm_config.json'])
+            logger.error(f"❌ Missing HRM components: {missing}")
+            return False
+        logger.info("✅ HRM verified (source and/or local checkpoint present)")
+        return True
+
+    # Docling: require safetensors only
+    if model_name == "docling_models":
+        model_files = list(model_path.rglob('*.safetensors'))
+        if not model_files:
+            logger.error("❌ Missing Docling model files (*.safetensors)")
+            return False
+        total_size = sum(f.stat().st_size for f in model_path.rglob('*.safetensors'))
+        size_gb = total_size / (1024**3)
+        logger.info(f"✅ {model_name} verified - Size: {size_gb:.2f} GB")
+        return True
+
+    # Check for essential files for HF models
+    essential_files = ['config.json', 'tokenizer.json']
+
     missing_files = []
     for file in essential_files:
         if not (model_path / file).exists():
             missing_files.append(file)
 
-    # Check for model files (safetensors format)
-    model_files = list(model_path.glob('*.safetensors'))
+    # Check for model files (safetensors format) deep
+    model_files = list(model_path.rglob('*.safetensors'))
     if not model_files:
         missing_files.append('model files (*.safetensors)')
-    
+
     if missing_files:
         logger.error(f"❌ Missing essential files for {model_name}: {missing_files}")
         return False
-    
+
     # Check total size
     total_size = sum(f.stat().st_size for f in model_path.rglob('*') if f.is_file())
     size_gb = total_size / (1024**3)
     logger.info(f"✅ {model_name} verified - Size: {size_gb:.2f} GB")
-    
+
     return True
 
 def main():
