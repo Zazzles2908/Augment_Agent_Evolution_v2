@@ -1,6 +1,6 @@
 Param(
   [string]$TritonUrl = "http://localhost:8000",
-  [string[]]$Models = @("qwen3_embedding_trt","qwen3_reranker_trt","docling_gpu","glm45_air")
+  [string[]]$Models = @("qwen3_4b_embedding","qwen3_0_6b_reranking","docling_gpu","glm45_air")
 )
 
 Function Invoke-JsonPost($Url, $Body) {

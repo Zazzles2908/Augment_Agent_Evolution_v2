@@ -1,4 +1,4 @@
-name: "qwen3_reranker_trt"
+name: "qwen3_0_6b_reranking"
 platform: "tensorrt_plan"
 # Explicit-batch TensorRT engine for 8B reranker with NVFP4 quantization
 max_batch_size: 0

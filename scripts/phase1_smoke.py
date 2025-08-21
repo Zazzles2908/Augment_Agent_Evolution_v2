@@ -23,7 +23,7 @@ from shared.triton_repository_client import TritonRepositoryClient
 from shared.resource_manager.triton_resource_manager import TritonResourceManager, ResourceManagerConfig
 
 TRITON_URL = os.environ.get('TRITON_URL', 'http://localhost:8000')
-MODELS = ['qwen3_embedding_trt','qwen3_reranker_trt','docling_gpu','glm45_air']
+MODELS = ['qwen3_4b_embedding','qwen3_0_6b_reranking','docling_gpu','glm45_air']
 
 
 def post(path: str, body: dict | None = None):

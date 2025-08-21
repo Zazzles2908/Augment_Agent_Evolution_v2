@@ -41,8 +41,8 @@ class ResourceManagerConfig:
     })
     registry: Dict[str, float] = field(default_factory=lambda: {
         # Qwen3 models (~2.0GB each) and Docling GPU (~2.0GB)
-        "qwen3_embedding_trt": 2.0,
-        "qwen3_reranker_trt": 2.0,
+        "qwen3_4b_embedding": 2.0,
+        "qwen3_0_6b_reranking": 2.0,
         "docling_gpu": 2.0,
         # Optionally add generation model footprint if managed here, e.g.: "glm45_air": 12.0
     })

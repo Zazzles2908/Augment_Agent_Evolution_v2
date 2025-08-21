@@ -1,4 +1,4 @@
-name: "qwen3_embedding_trt"
+name: "qwen3_4b_embedding"
 platform: "tensorrt_plan"
 # Explicit-batch TensorRT engine for 8B model with NVFP4 quantization
 max_batch_size: 0
