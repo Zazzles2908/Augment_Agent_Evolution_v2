@@ -1,2 +1,2 @@
-# K2-Vector-Hub Service
-# The Mayor's Office - Global Strategy Coordinator
+# Orchestrator Hub Service
+# Global Strategy Coordinator for the Four-Brain Architecture

@@ -1,16 +1,14 @@
 # Minimal TensorRT build helper image (Windows host via Docker Desktop, Linux container)
 # Includes ONNX tools and validation scripts to avoid ad-hoc installs
 
-FROM nvcr.io/nvidia/tensorrt:25.06-py3
+FROM nvcr.io/nvidia/tensorrt:25.08-py3
 
 # Ensure pip is available and install onnx for validation (trtexec is already provided by base image)
 RUN python3 -m pip install --no-cache-dir --upgrade pip && \
     python3 -m pip install --no-cache-dir onnx numpy
 
-# Copy validation utilities from repo into the image
-# Expect build context to be repository root
-COPY tmp/validate_onnx.py /opt/trt-tools/validate_onnx.py
-COPY tmp/list_onnx_io.py   /opt/trt-tools/list_onnx_io.py
+# Validation utilities optional; skipping COPY to avoid build-time dependency on tmp/
+# (We can install onnx in the container at runtime if needed.)
 
 WORKDIR /work
 

@@ -488,7 +488,7 @@ class Brain3Manager:
         code_request = request.get("code_request", {})
 
         try:
-            # Check if K2-Vector-Hub is available for code generation
+            # Check if Orchestrator Hub is available for code generation
             if not hasattr(self, 'k2_vector_hub_url') or not self.k2_vector_hub_url:
                 return {
                     "success": False,
@@ -496,10 +496,10 @@ class Brain3Manager:
                     "code_type": code_request.get("type", "unknown"),
                     "requirements": code_request.get("requirements", []),
                     "generated": False,
-                    "message": "K2-Vector-Hub URL not configured for code generation"
+                    "message": "Orchestrator Hub URL not configured for code generation"
                 }
 
-            # Prepare code generation request for K2-Vector-Hub
+            # Prepare code generation request for Orchestrator Hub
             k2_request = {
                 "action": "generate_code",
                 "code_type": code_request.get("type", "python"),
@@ -508,7 +508,7 @@ class Brain3Manager:
                 "style": code_request.get("style", "production")
             }
 
-            # Send request to K2-Vector-Hub (real implementation)
+            # Send request to Orchestrator Hub (real implementation)
             import aiohttp
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -525,12 +525,12 @@ class Brain3Manager:
                             "generated": True,
                             "code": result.get("code", ""),
                             "explanation": result.get("explanation", ""),
-                            "message": "Code generated successfully via K2-Vector-Hub"
+                            "message": "Code generated successfully via Orchestrator Hub"
                         }
                     else:
                         return {
                             "success": False,
-                            "error": f"K2-Vector-Hub returned status {response.status}",
+                            "error": f"Orchestrator Hub returned status {response.status}",
                             "code_type": code_request.get("type", "unknown"),
                             "requirements": code_request.get("requirements", []),
                             "generated": False,

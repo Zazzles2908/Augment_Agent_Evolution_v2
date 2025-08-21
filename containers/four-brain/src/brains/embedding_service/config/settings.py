@@ -165,8 +165,8 @@ class Brain1Settings(BaseSettings):
         env="TRITON_URL"
     )
     triton_model_name: str = Field(
-        default="qwen3_embedding",
-        description="Model name deployed in Triton model repository",
+        default="qwen3_embedding_trt",
+        description="Model name deployed in Triton model repository (default uses *_trt engine)",
         env="TRITON_MODEL_NAME"
     )
     triton_timeout_s: int = Field(
@@ -178,8 +178,8 @@ class Brain1Settings(BaseSettings):
 
     # Database Configuration
     database_url: str = Field(
-        default="postgresql://postgres:ai_secure_2024@postgres:5432/ai_system",
-        description="PostgreSQL database URL",
+        default="",
+        description="PostgreSQL database URL (must be provided via env; no default secrets)",
         env="DATABASE_URL"
     )
     supabase_url: str = Field(

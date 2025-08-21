@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Phase 1 smoke test for Triton-centric HRM setup (placeholder ONNX models)
-- Loads/unloads hrm_h_trt, hrm_l_trt, qwen3_reranker_trt, docling_gpu
+Phase 1 smoke test for Triton-centric stack (no HRM)
+- Loads/unloads qwen3_embedding_trt, qwen3_reranker_trt, docling_gpu
 - Validates readiness endpoints
 - Exercises ResourceManager LRU with small VRAM budget to force evictions
 """
@@ -23,7 +23,7 @@ from shared.triton_repository_client import TritonRepositoryClient
 from shared.resource_manager.triton_resource_manager import TritonResourceManager, ResourceManagerConfig
 
 TRITON_URL = os.environ.get('TRITON_URL', 'http://localhost:8000')
-MODELS = ['hrm_h_trt','hrm_l_trt','qwen3_reranker_trt','docling_gpu']
+MODELS = ['qwen3_embedding_trt','qwen3_reranker_trt','docling_gpu','glm45_air']
 
 
 def post(path: str, body: dict | None = None):
@@ -77,14 +77,14 @@ def main():
 
     # ResourceManager LRU test
     client = TritonRepositoryClient(base_url=TRITON_URL)
-    cfg = ResourceManagerConfig(total_vram_gb=4.0, reserved_gb=0.5, always_loaded={'hrm_h_trt': 0.1}, registry={
+    cfg = ResourceManagerConfig(total_vram_gb=4.0, reserved_gb=0.5, always_loaded={}, registry={
         'hrm_l_trt': 1.5,
         'qwen3_reranker_trt': 1.5,
         'docling_gpu': 1.5,
     })
     rm = TritonResourceManager(client, cfg)
     # ensure_loaded should evict as needed
-    rm.ensure_loaded(['hrm_l_trt', 'qwen3_reranker_trt'])
+    rm.ensure_loaded(['qwen3_embedding_trt', 'qwen3_reranker_trt'])
     rm.ensure_loaded(['docling_gpu'])
     results['rm']['status'] = rm.status()
 

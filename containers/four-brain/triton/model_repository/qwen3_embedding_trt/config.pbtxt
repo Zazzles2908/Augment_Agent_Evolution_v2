@@ -19,7 +19,5 @@ dynamic_batching {
   max_queue_delay_microseconds: 100
 }
 
-# Model control for on-demand loading
-model_control {
-  kind: MODEL_CONTROL_EXPLICIT
-}
+# Model control is configured at the server level (--model-control-mode=explicit)
+# Removed per Triton schema (model configs do not declare model_control)

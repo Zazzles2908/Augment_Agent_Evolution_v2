@@ -63,7 +63,7 @@ class ConfigManager:
             # Triton configuration defaults (aligned with Brain1Settings)
             "use_triton": True,
             "triton_url": "http://triton:8000",
-            "triton_model_name": "qwen3_embedding",
+            "triton_model_name": "qwen3_embedding_trt",
             "triton_timeout_s": 30
         }
         

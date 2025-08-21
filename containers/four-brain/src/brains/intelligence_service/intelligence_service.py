@@ -27,7 +27,7 @@ sys.path.append('/workspace/src/brains/intelligence_service')
 from brains.intelligence_service.api.endpoints import router
 from brains.intelligence_service.config.settings import get_brain3_settings
 from brains.intelligence_service.brain3_manager import Brain3Manager
-from shared.hrm import HRMOrchestrator, BlackwellOptimizer, BlackwellOptimizationConfig
+# HRM removed from project; intelligence service no longer initializes HRM
 
 # Configure logging first
 logging.basicConfig(
@@ -49,8 +49,9 @@ except ImportError as e:
 
 # Global manager instance
 brain3_manager: Brain3Manager = None
-hrm_orchestrator: HRMOrchestrator = None
-blackwell_optimizer: BlackwellOptimizer = None
+# HRM removed
+# hrm_orchestrator removed
+# blackwell_optimizer removed
 
 class AugmentService:
     """Brain 3 Augment Agent Service Class"""
@@ -79,7 +80,7 @@ class AugmentService:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """FastAPI lifespan manager for Brain 3 service"""
-    global brain3_manager, hrm_orchestrator, blackwell_optimizer
+    global brain3_manager
     
     # Startup
     logger.info("🚀 Starting Brain 3 Augment Agent Service...")
@@ -116,32 +117,7 @@ async def lifespan(app: FastAPI):
         logger.info("⏳ Waiting for services to be fully ready...")
         await asyncio.sleep(5)
 
-        # Initialize HRM Orchestrator for enhanced intelligence processing
-        try:
-            # Initialize Blackwell Optimizer
-            blackwell_config = BlackwellOptimizationConfig(
-                enable_thread_block_clustering=True,
-                enable_tma_optimization=True,
-                enable_dpx_instructions=True,
-                enable_precision_optimization=True,
-                enable_memory_optimization=True
-            )
-            blackwell_optimizer = BlackwellOptimizer(blackwell_config)
-            logger.info("🚀 Blackwell Optimizer initialized for Intelligence Service")
-
-            # Initialize HRM Orchestrator (without Triton for Intelligence Service)
-            # Intelligence Service uses HRM for strategic reasoning, not direct model inference
-            hrm_orchestrator = HRMOrchestrator(
-                triton_client=None,  # Intelligence Service doesn't directly use Triton
-                resource_manager=None,
-                blackwell_optimizations=True
-            )
-
-            logger.info("✅ HRM Orchestrator initialized for Intelligence Service")
-
-        except Exception as e:
-            logger.error(f"❌ HRM initialization failed in Intelligence Service: {e}")
-            logger.warning("⚠️ Continuing without HRM features")
+        # HRM removed: no HRM initialization in Intelligence Service
 
         # Initialize flow monitoring (integrate with existing metrics endpoint)
         if FLOW_MONITORING_AVAILABLE:

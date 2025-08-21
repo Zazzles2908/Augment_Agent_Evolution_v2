@@ -12,12 +12,13 @@ x-common-env: &common-env
 services:
   # ===== INFRASTRUCTURE LAYER =====
   postgres:
+    <<: *common-env
     image: pgvector/pgvector:pg16
     container_name: four-brain-postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_system}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ai_secure_2024}
       TZ: Australia/Melbourne
     ports:
       - "${POSTGRES_PORT:-5433}:5432"
@@ -31,7 +32,7 @@ services:
     networks:
       - four-brain-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-ai_system}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,6 +40,7 @@ services:
     restart: unless-stopped
 
   redis:
+    <<: *common-env
     image: redis:7-alpine
     container_name: four-brain-redis
     environment:
@@ -256,12 +258,8 @@ services:
       HF_HOME: /workspace/.cache/huggingface
       TRANSFORMERS_CACHE: /workspace/.cache/huggingface
       HF_TOKEN: ${HF_TOKEN:-}
-      # HRM Configuration for Intelligence Service
-      HRM_ENABLED: ${HRM_ENABLED:-true}
-      BLACKWELL_OPTIMIZATIONS: ${BLACKWELL_OPTIMIZATIONS:-true}
-      HRM_MAX_ITERATIONS: ${HRM_MAX_ITERATIONS:-10}
-      HRM_CONVERGENCE_THRESHOLD: ${HRM_CONVERGENCE_THRESHOLD:-0.85}
-      HRM_METRICS_ENABLED: ${HRM_METRICS_ENABLED:-true}
+      # Orchestrator configuration
+      ORCHESTRATOR_ENABLED: ${ORCHESTRATOR_ENABLED:-true}
     ports:
       - "8013:8003"
     # CRITICAL: Service-level resource limits (enforced by docker-compose)
@@ -391,17 +389,8 @@ services:
       # Disable smoke mode to initialize all components
       PHASE1_SMOKE: "0"
       TRITON_URL: "http://triton:8000"
-      # HRM Configuration
-      HRM_ENABLED: ${HRM_ENABLED:-true}
-      BLACKWELL_OPTIMIZATIONS: ${BLACKWELL_OPTIMIZATIONS:-true}
-      HRM_MAX_ITERATIONS: ${HRM_MAX_ITERATIONS:-10}
-      HRM_CONVERGENCE_THRESHOLD: ${HRM_CONVERGENCE_THRESHOLD:-0.85}
-      HRM_H_MODULE_PRECISION: ${HRM_H_MODULE_PRECISION:-fp8}
-      HRM_L_MODULE_PRECISION: ${HRM_L_MODULE_PRECISION:-nvfp4}
-      ENABLE_THREAD_BLOCK_CLUSTERING: ${ENABLE_THREAD_BLOCK_CLUSTERING:-true}
-      ENABLE_TMA_OPTIMIZATION: ${ENABLE_TMA_OPTIMIZATION:-true}
-      ENABLE_DPX_INSTRUCTIONS: ${ENABLE_DPX_INSTRUCTIONS:-true}
-      HRM_METRICS_ENABLED: ${HRM_METRICS_ENABLED:-true}
+      # Orchestrator configuration
+      ORCHESTRATOR_ENABLED: ${ORCHESTRATOR_ENABLED:-true}
     ports:
       - "9018:9098"
     volumes:
@@ -529,6 +518,7 @@ services:
       start_period: 40s
 
   triton:
+    <<: *common-env
     image: nvcr.io/nvidia/tritonserver:25.06-py3
     container_name: triton
     shm_size: 2g
@@ -560,8 +550,8 @@ services:
       - "${TRITON_GRPC_PORT:-8001}:8001"  # gRPC
       - "${TRITON_METRICS_PORT:-8002}:8002"  # Metrics
     volumes:
-      - C:\Project\Augment_Agent_Evolution\containers\four-brain\triton\model_repository:/models
-      - C:\Project\Augment_Agent_Evolution\cache:/cache:rw
+      - ../../triton/model_repository:/models
+      - ../../cache:/cache:rw
     networks:
       - four-brain-network
     healthcheck:
@@ -574,6 +564,7 @@ services:
 
   # ===== FOUR-BRAIN DASHBOARD =====
   four-brain-dashboard:
+    profiles: ["dashboard"]
     build:
       context: ../../dashboard
       dockerfile: Dockerfile

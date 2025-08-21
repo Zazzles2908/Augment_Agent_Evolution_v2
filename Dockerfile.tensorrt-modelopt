@@ -1,0 +1,15 @@
+FROM nvcr.io/nvidia/tensorrt:25.08-py3
+
+# Install dependencies for real model compilation
+RUN pip install --no-cache-dir \
+    onnx \
+    onnxruntime \
+    transformers \
+    torch \
+    numpy
+
+# Set working directory
+WORKDIR /workspace
+
+# Default command
+CMD ["bash"]
