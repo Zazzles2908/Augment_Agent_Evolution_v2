@@ -27,14 +27,14 @@ logger = logging.getLogger(__name__)
 # Model configurations - Qwen3 models and Docling (no HRM)
 MODELS_CONFIG = {
     "embedding_service": {
-        "repo_id": "Qwen/Qwen3-Embedding-8B",  # Official Qwen3-8B embedding model
-        "local_dir": "models/qwen3/embedding-8b",
-        "description": "Embedding Service - Qwen3-Embedding-8B (official 8B embedding model)"
+        "repo_id": "Qwen/Qwen3-4B",  # Qwen3-4B model for RTX 5070 Ti constraints
+        "local_dir": "models/qwen3/embedding-4b",
+        "description": "Embedding Service - Qwen3-4B (optimized for 16GB VRAM)"
     },
     "reranker_service": {
-        "repo_id": "Qwen/Qwen3-Reranker-8B",  # Official Qwen3-8B reranker model
-        "local_dir": "models/qwen3/reranker-8b",
-        "description": "Reranker Service - Qwen3-Reranker-8B (official 8B reranker model)"
+        "repo_id": "Qwen/Qwen3-0.6B",  # Qwen3-0.6B reranker for RTX 5070 Ti constraints
+        "local_dir": "models/qwen3/reranker-0.6b",
+        "description": "Reranker Service - Qwen3-0.6B (optimized for 16GB VRAM)"
     },
     # Removed HRM model architecture
         # (intentionally removed)

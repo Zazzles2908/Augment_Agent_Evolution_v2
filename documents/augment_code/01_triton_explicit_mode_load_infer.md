@@ -1,13 +1,13 @@
 Goal
-- Ensure Triton (explicit model-control-mode) loads qwen3_embedding and returns embeddings
+- Ensure Triton (explicit model-control-mode) loads qwen3_4b_embedding and returns 2000-dim embeddings
 
 Key facts from repo
 - Triton runs with: --model-control-mode=explicit and model repo mounted at containers/four-brain/triton/model_repository
-- qwen3_embedding config expects:
+- qwen3_4b_embedding config expects:
   - platform: onnxruntime_onnx
   - inputs: input_ids:int64 [ -1 ], attention_mask:int64 [ -1 ] (runtime interprets with batch dim => [N,S])
   - output: embedding:fp32 [ -1 ] (runtime => [N,D])
-- qwen3_embedding_trt has different dtypes/shapes (INT32, explicit-batch). Use only if calling that model.
+- Note: legacy qwen3_embedding (onnxruntime) and *_trt aliases are deprecated. Use qwen3_4b_embedding (TensorRT plan) going forward.
 
 Likely pitfalls the other AI may hit
 1) Model not loaded (explicit mode) — Triton requires a load call
@@ -18,15 +18,15 @@ Likely pitfalls the other AI may hit
 Actions (safe, idempotent)
 1) Verify server & repository
 - GET http://localhost:8000/v2/health/ready
-- GET http://localhost:8000/v2/repository/index — confirm both qwen3_embedding and qwen3_embedding_trt listed
+- GET http://localhost:8000/v2/repository/index — confirm qwen3_4b_embedding listed
 
 2) Explicitly load model (if state is UNAVAILABLE)
-- POST http://localhost:8000/v2/repository/models/qwen3_embedding/load
+- POST http://localhost:8000/v2/repository/models/qwen3_4b_embedding/load
   Body: {}
-- GET http://localhost:8000/v2/models/qwen3_embedding — status should be READY
+- GET http://localhost:8000/v2/models/qwen3_4b_embedding — status should be READY
 
 3) Minimal working inference (curl)
-- POST http://localhost:8000/v2/models/qwen3_embedding/infer
+- POST http://localhost:8000/v2/models/qwen3_4b_embedding/infer
   Header: Content-Type: application/json
   Body example (single sentence, batch=1):
   {
@@ -36,7 +36,7 @@ Actions (safe, idempotent)
     ],
     "outputs": [{"name": "embedding", "binary_data": false}]
   }
-- Expect outputs[0].data length ≈ embedding dimension (2560), or truncated later in client to 2000
+- Expect outputs[0].data length ≈ 2000 (embedding dimension)
 
 4) Using tritonclient (Python) with correct dtypes
 - Ensure inputs are numpy.int64 and shaped [N,S]

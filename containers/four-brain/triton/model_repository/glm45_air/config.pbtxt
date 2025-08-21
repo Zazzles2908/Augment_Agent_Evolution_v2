@@ -1,0 +1,21 @@
+name: "glm45_air"
+platform: "tensorrt_plan"
+# Explicit-batch TensorRT engine for GLM-4.5 Air (causal LM)
+max_batch_size: 0
+
+input: [
+  { name: "input_ids", data_type: TYPE_INT64, dims: [ -1, -1 ] },
+  { name: "attention_mask", data_type: TYPE_INT64, dims: [ -1, -1 ] }
+]
+output: [
+  # Causal LM logits: [batch, seq, vocab]; keep fully dynamic dims
+  { name: "logits", data_type: TYPE_FP32, dims: [ -1, -1, -1 ] }
+]
+
+instance_group [ { kind: KIND_GPU, count: 1 } ]
+
+dynamic_batching {
+  preferred_batch_size: [ 1 ]
+  max_queue_delay_microseconds: 100
+}
+

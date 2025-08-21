@@ -1,0 +1,11 @@
+# Configuration for qwen3_0_6b_reranking
+hf:
+  model_id: Qwen/Qwen3-0.6B
+export:
+  seq_length: 512
+builder:
+  workspace_gb: 6
+  min_batch: 1x256
+  opt_batch: 2x256
+  max_batch: 4x256
+

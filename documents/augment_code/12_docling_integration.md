@@ -6,7 +6,7 @@ Goals
 - Pipe parsed text→embedding→storage with metadata tracking
 
 1) Loading Strategy
-- Model name: docling_gpu (ONNX or TRT). Keep unloaded by default
+- Model name: docling (TensorRT or ONNX). Keep unloaded by default
 - Load when ingestion tasks arrive; unload when idle and memory needed
 - Prefer small batch parsing; back-pressure via queue lengths
 
@@ -14,7 +14,7 @@ Goals
 - Input: document bytes + metadata
 - Docling GPU → structured blocks (text/tables)
 - Chunker → normalized text chunks
-- Embedding via qwen3_embedding_trt
+- Embedding via qwen3_4b_embedding
 - Persist to Supabase (text, vector, metadata); cache in Redis
 
 3) Metadata

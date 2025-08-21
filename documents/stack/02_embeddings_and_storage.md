@@ -21,7 +21,7 @@ create index if not exists documents_embedding_idx
 
 Embedding flow
 1) Check Redis cache by hash(content)
-2) If miss, call Triton model qwen3_embedding_trt
+2) If miss, call Triton model qwen3_4b_embedding
 3) Store embedding in Redis and upsert into Supabase
 
 

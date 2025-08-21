@@ -8,8 +8,8 @@ This guide details the model optimization and serving stack tuned for RTX 5070 T
 - CUDA 13.x runtime via Triton container; TensorRT 10.13.x
 
 ## Models & Targets
-- Qwen3-8B Embedding — TensorRT FP8
-- Qwen3-8B Reranker — TensorRT NVFP4
+- Qwen3-4B Embedding — TensorRT (NVFP4 or FP16), output 2000-dim
+- Qwen3-0.6B Reranker — TensorRT NVFP4
 - Docling Model — TensorRT NVFP4
 
 > Tip: If VRAM is tight, test 4B variants or FP16 fallback.
@@ -18,25 +18,25 @@ This guide details the model optimization and serving stack tuned for RTX 5070 T
 ```bash
 # Example directory layout
 models/
-  qwen3-8b-embed/
-  qwen3-8b-rerank/
+  qwen3-4b-embed/
+  qwen3-0_6b-rerank/
   docling/
 triton/model_repository/
-  qwen_embed/1/model.plan
-  qwen_rerank/1/model.plan
+  qwen3_4b_embedding/1/model.plan
+  qwen3_0_6b_reranking/1/model.plan
   docling/1/model.plan
 
 # Convert to ONNX (if needed) or use provided ONNX
-python export_to_onnx.py --model models/qwen3-8b-embed --out qwen3-embed.onnx
+python export_to_onnx.py --model models/qwen3-4b-embed --out qwen3-4b-embed.onnx
 
 # Build FP8 engine (embedding)
-trtexec --onnx=qwen3-embed.onnx \
-  --fp8 --saveEngine=triton/model_repository/qwen_embed/1/model.plan \
+trtexec --onnx=qwen3-4b-embed.onnx \
+  --nvfp4 --saveEngine=triton/model_repository/qwen3_4b_embedding/1/model.plan \
   --device=0 --memPoolSize=workspace:4096 --buildOnly
 
 # Build NVFP4 engine (reranker)
-trtexec --onnx=qwen3-rerank.onnx \
-  --nvfp4 --saveEngine=triton/model_repository/qwen_rerank/1/model.plan \
+trtexec --onnx=qwen3-0_6b-rerank.onnx \
+  --nvfp4 --saveEngine=triton/model_repository/qwen3_0_6b_reranking/1/model.plan \
   --device=0 --memPoolSize=workspace:4096 --buildOnly
 
 # Build NVFP4 engine (Docling)
@@ -47,23 +47,31 @@ trtexec --onnx=docling.onnx \
 
 ## Triton Model Configs (config.pbtxt)
 ```protobuf
-name: "qwen_embed"
+name: "qwen3_4b_embedding"
 platform: "tensorrt_plan"
-max_batch_size: 32
+max_batch_size: 0
 instance_group [{ kind: KIND_GPU, count: 1 }]
-dynamic_batching { preferred_batch_size: [4, 8, 16], max_queue_delay_microseconds: 5000 }
-input [ { name: "INPUT_0", data_type: TYPE_FP16, dims: [ -1 ] } ]
-output [ { name: "OUTPUT_0", data_type: TYPE_FP16, dims: [ 2000 ] } ]
+dynamic_batching { preferred_batch_size: [4, 8], max_queue_delay_microseconds: 100 }
+input [
+  { name: "input_ids", data_type: TYPE_INT64, dims: [ -1, -1 ] },
+  { name: "attention_mask", data_type: TYPE_INT64, dims: [ -1, -1 ] }
+]
+output [ { name: "embedding", data_type: TYPE_FP32, dims: [ -1, 2000 ] } ]
 ```
 
 ```protobuf
-name: "qwen_rerank"
+name: "qwen3_0_6b_reranking"
 platform: "tensorrt_plan"
-max_batch_size: 16
+max_batch_size: 0
 instance_group [{ kind: KIND_GPU, count: 1 }]
-dynamic_batching { preferred_batch_size: [2,4,8], max_queue_delay_microseconds: 5000 }
-input [ { name: "PAIR_INPUT", data_type: TYPE_FP16, dims: [ -1 ] } ]
-output [ { name: "SCORES", data_type: TYPE_FP16, dims: [ -1 ] } ]
+dynamic_batching { preferred_batch_size: [2, 4], max_queue_delay_microseconds: 100 }
+input [
+  { name: "query_ids", data_type: TYPE_INT64, dims: [ -1, -1 ] },
+  { name: "query_mask", data_type: TYPE_INT64, dims: [ -1, -1 ] },
+  { name: "doc_ids", data_type: TYPE_INT64, dims: [ -1, -1 ] },
+  { name: "doc_mask", data_type: TYPE_INT64, dims: [ -1, -1 ] }
+]
+output [ { name: "score", data_type: TYPE_FP32, dims: [ -1, 1 ] } ]
 ```
 
 ```protobuf

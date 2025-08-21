@@ -235,27 +235,26 @@ docker compose -f containers/four-brain/docker/docker-compose.yml up -d triton
 curl http://localhost:8000/v2/health/ready
 ```
 
-**Task 7A.2: Load HRM Models**
+**Task 7A.2: Load Current Models**
 ```bash
-# Load HRM H-module (FP16) and L-module (NVFP4)
-curl -X POST http://localhost:8000/v2/repository/models/hrm_h/load
-curl -X POST http://localhost:8000/v2/repository/models/hrm_l/load
+# Load current Triton models
+curl -X POST http://localhost:8000/v2/repository/models/qwen3_4b_embedding/load
+curl -X POST http://localhost:8000/v2/repository/models/qwen3_0_6b_reranking/load
 nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits
 ```
 
-**Task 7A.3: Add Qwen3 Models**
+**Task 7A.3: Verify Model Load State**
 ```bash
-# Load Qwen3 models incrementally
-curl -X POST http://localhost:8000/v2/repository/models/qwen3_embedding_trt/load
-curl -X POST http://localhost:8000/v2/repository/models/qwen3_embedding_fp8/load
-curl -X POST http://localhost:8000/v2/repository/models/qwen3_reranker_nvfp4/load
+# Confirm both models are READY
+curl -s http://localhost:8000/v2/models/qwen3_4b_embedding | jq
+curl -s http://localhost:8000/v2/models/qwen3_0_6b_reranking | jq
 nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits
 ```
 
 **Task 7A.4: Add Docling Model**
 ```bash
 # Load Docling model
-curl -X POST http://localhost:8000/v2/repository/models/docling_nvfp4/load
+curl -X POST http://localhost:8000/v2/repository/models/docling/load
 nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits
 ```
 
@@ -270,9 +269,9 @@ watch -n 1 'nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheade
 **Task 7B.1: Individual Model Inference Testing**
 ```bash
 # Test each model endpoint
-curl -X POST http://localhost:8000/v2/models/hrm_h/infer -d @test_data/hrm_input.json
-curl -X POST http://localhost:8000/v2/models/qwen3_embedding_trt/infer -d @test_data/qwen3_input.json
-curl -X POST http://localhost:8000/v2/models/docling_nvfp4/infer -d @test_data/docling_input.json
+curl -X POST http://localhost:8000/v2/models/qwen3_4b_embedding/infer -d @test_data/qwen3_embed_input.json
+curl -X POST http://localhost:8000/v2/models/qwen3_0_6b_reranking/infer -d @test_data/qwen3_rerank_input.json
+curl -X POST http://localhost:8000/v2/models/docling/infer -d @test_data/docling_input.json
 ```
 
 **Task 7B.2: Multi-Model Concurrent Testing**

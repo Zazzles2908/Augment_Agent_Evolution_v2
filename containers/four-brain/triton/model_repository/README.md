@@ -2,7 +2,7 @@ This is the Triton model repository root.
 
 Place model subdirectories here, e.g.:
 
-qwen3_embedding/
+qwen3_4b_embedding/
   config.pbtxt
   1/
     model.plan | model.onnx | model.dali

@@ -165,8 +165,8 @@ class Brain1Settings(BaseSettings):
         env="TRITON_URL"
     )
     triton_model_name: str = Field(
-        default="qwen3_embedding_trt",
-        description="Model name deployed in Triton model repository (default uses *_trt engine)",
+        default="qwen3_4b_embedding",
+        description="Model name deployed in Triton model repository (Qwen3-4B embedding)",
         env="TRITON_MODEL_NAME"
     )
     triton_timeout_s: int = Field(

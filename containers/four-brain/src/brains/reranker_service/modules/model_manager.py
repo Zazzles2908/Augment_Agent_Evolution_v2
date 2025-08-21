@@ -30,6 +30,7 @@ class ModelManager:
         self.model = None
         self.tokenizer = None
         self.model_loaded = False
+        self.triton_mode = False
         self.loading_time = 0.0
         self.initialization_time = time.time()
         
@@ -65,6 +66,26 @@ class ModelManager:
             logger.info("✅ Model already loaded")
             return True
         
+        # If configured to use Triton for reranking, only load tokenizer and skip heavy model
+        try:
+            if self.config_manager and self.config_manager.get_config("use_triton"):
+                self.triton_mode = True
+                logger.info("🚀 USE_TRITON=true: loading tokenizer only for reranker")
+                # Load tokenizer
+                self.tokenizer = AutoTokenizer.from_pretrained(
+                    self.model_name,
+                    cache_dir=self.cache_dir,
+                    trust_remote_code=True,
+                    local_files_only=False
+                )
+                self.model = None
+                self.model_loaded = True  # Tokenizer is sufficient in Triton mode
+                self.loading_time = time.time() - start_time
+                logger.info("✅ Tokenizer loaded for Triton reranker path; skipping local model load")
+                return True
+        except Exception as e:
+            logger.warning(f"⚠️ Failed Triton-mode tokenizer-only load path, falling back to local model: {e}")
+
         logger.info("🧠 Loading Qwen3-Reranker-4B model...")
         logger.info(f"📁 Model path: {self.model_path}")
         logger.info(f"🔢 Blackwell quantization: {use_blackwell}")

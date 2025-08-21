@@ -1,7 +1,7 @@
 # Deployment Runbook (Ubuntu 24.04)
 
 Prerequisites
-- Ubuntu 24.04 LTS, NVIDIA driver 550+, CUDA 12.x, TensorRT 10.x
+- Ubuntu 24.04 LTS, NVIDIA driver 550+, CUDA 13.x, TensorRT 10.13.x
 - Docker 26+ and NVIDIA Container Toolkit, or native installs
 
 Start services

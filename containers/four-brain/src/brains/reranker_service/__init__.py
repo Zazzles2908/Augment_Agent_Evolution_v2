@@ -1,15 +1,15 @@
 """
-Brain 2 (Qwen3-Reranker-4B) Module
+Brain 2 (Qwen3-Reranker-0.6B) Module
 Document Relevance Ranking for Four-Brain Architecture
 
 This module implements Brain 2 of the Four-Brain AI System, responsible for
-document relevance ranking using the Qwen3-Reranker-4B model with quantization
+document relevance ranking using the Qwen3-Reranker-0.6B model with quantization
 optimization for RTX 5070 Ti hardware.
 
 Components:
 - Brain2Manager: Main manager class following Brain 1 patterns
 - RerankerService: FastAPI service wrapper
-- ModelHandler: Qwen3-Reranker-4B model handling with quantization
+- ModelHandler: Qwen3-Reranker-0.6B model handling with quantization
 - TaskProcessor: Background task processing via Redis
 
 Hardware Optimization:

@@ -1,0 +1,12 @@
+# Configuration for qwen3_4b_embedding
+hf:
+  model_id: Qwen/Qwen3-4B
+  fallback: intfloat/e5-base-v2
+export:
+  seq_length: 512
+builder:
+  workspace_gb: 6
+  min_batch: 1x128
+  opt_batch: 4x128
+  max_batch: 8x128
+

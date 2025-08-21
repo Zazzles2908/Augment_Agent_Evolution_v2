@@ -47,7 +47,12 @@ class ConfigManager:
             # MoE Efficiency Configuration
             "enable_moe_efficiency": True,
             "active_experts": 3,  # 3B active out of 30B total
-            "expert_selection_threshold": 0.1
+            "expert_selection_threshold": 0.1,
+            # Triton settings for TensorRT-served reranker
+            "use_triton": True,
+            "triton_url": "http://triton:8000",
+            "triton_model_name": "qwen3_0_6b_reranking",
+            "triton_timeout_s": 30
         }
         
         logger.info("🔧 Configuration Manager (Brain-2) initialized")
@@ -109,7 +114,12 @@ class ConfigManager:
             "BRAIN2_TOP_K": "top_k_default",
             "REDIS_URL": "redis_url",
             "BRAIN2_ENABLE_MOE": "enable_moe_efficiency",
-            "BRAIN2_ACTIVE_EXPERTS": "active_experts"
+            "BRAIN2_ACTIVE_EXPERTS": "active_experts",
+            # Triton overrides
+            "USE_TRITON": "use_triton",
+            "TRITON_URL": "triton_url",
+            "TRITON_RERANKER_MODEL_NAME": "triton_model_name",
+            "TRITON_TIMEOUT_S": "triton_timeout_s"
         }
         
         for env_var, config_key in env_mappings.items():
@@ -203,7 +213,7 @@ class ConfigManager:
             "model_name": self.config["model_name"],
             "model_path": self.config["model_path"],
             "cache_dir": self.config["cache_dir"],
-            "use_blackwall_quantization": self.config["use_blackwall_quantization"],
+            "use_blackwell_quantization": self.config["use_blackwell_quantization"],
             "enable_4bit_quantization": self.config["enable_4bit_quantization"],
             "enable_8bit_quantization": self.config["enable_8bit_quantization"],
             "max_vram_usage": self.config["max_vram_usage"]
