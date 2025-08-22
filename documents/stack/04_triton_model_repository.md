@@ -12,7 +12,11 @@ models/
 │   ├── config.pbtxt
 │   └── 1/
 │       └── model.plan
-└── qwen3_0_6b_reranking/
+├── qwen3_0_6b_reranking/
+│   ├── config.pbtxt
+│   └── 1/
+│       └── model.plan
+└── docling/
     ├── config.pbtxt
     └── 1/
         └── model.plan
@@ -21,7 +25,7 @@ models/
 Notes
 - Use explicit model-control-mode and load/unload via /v2/repository APIs
 - Keep consistent input dtypes: TRT usually INT32; ORT often INT64
-- Compatibility: As of 2025-08-21, TensorRT supports CUDA 12.x and 13.x; prefer Triton 25.07+ (security fixes). Ensure your plan files are built with matching TensorRT/CUDA.
+- Compatibility: As of 2025-08-22, TensorRT supports CUDA 12.x and 13.x; prefer Triton 25.07+ (security fixes). Ensure your plan files are built with matching TensorRT/CUDA.
 - Naming: Use canonical names only — qwen3_4b_embedding (embedding), qwen3_0_6b_reranking (reranker), glm45_air (generation). Keep these consistent across code/scripts/configs.
 
 

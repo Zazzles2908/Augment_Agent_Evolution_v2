@@ -27,7 +27,7 @@ Notes
 
 Step-by-step (minimal local run)
 1) Start Redis, Postgres/Supabase
-2) Ensure /models contains qwen3_4b_embedding, qwen3_0_6b_reranking, glm45_air with config.pbtxt and plan files
+2) Ensure /models contains qwen3_4b_embedding, qwen3_0_6b_reranking, glm45_air with config.pbtxt and plan files. If using a Docling model in Triton, ensure the model name is exactly "docling" for consistency with scripts.
 3) Start Triton in explicit mode:
    - tritonserver \
      --model-repository=/models \
