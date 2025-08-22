@@ -24,3 +24,21 @@ Notes
 - Validate GPU visibility: nvidia-smi
 - Verify Redis and DB reachable before embedding loads
 
+
+Step-by-step (minimal local run)
+1) Start Redis, Postgres/Supabase
+2) Ensure /models contains qwen3_4b_embedding, qwen3_0_6b_reranking, glm45_air with config.pbtxt and plan files
+3) Start Triton in explicit mode:
+   - tritonserver \
+     --model-repository=/models \
+     --model-control-mode=explicit \
+     --http-port=8000 \
+     --metrics-port=8002
+4) Load models via HTTP (use curl or tritonclient) and verify /v2/models/{name}
+5) Run smoke test embedding → search (pgvector) → rerank → generate
+6) Validate metrics in Grafana; check logs in Loki
+
+Sanity curl examples
+- Readiness: curl http://localhost:8000/v2/health/ready
+- Metrics:   curl http://localhost:8002/metrics | head
+
