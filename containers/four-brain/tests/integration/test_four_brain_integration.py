@@ -31,9 +31,9 @@ class FourBrainIntegrationTest:
         self.base_urls = {
             "brain1": "http://localhost:8011",  # Brain 1 (Embedding)
             "brain2": "http://localhost:8012",  # Brain 2 (Reranker)
-            "brain3": "http://localhost:8013",  # Brain 3 (Augment) - The Concierge
+            "brain3": "http://localhost:8013",  # Brain 3 (Intelligence Service / Orchestrator)
             "brain4": "http://localhost:8010",  # Brain 4 (Docling)
-            "k2_hub": "http://localhost:9098",  # K2-Vector-Hub - The Mayor's Office
+            "k2_hub": "http://localhost:9098",  # K2-Vector-Hub - Orchestrator Hub Service
         }
         
         self.test_results = {}
@@ -53,10 +53,10 @@ class FourBrainIntegrationTest:
             # Test 2: Service Discovery
             await self.test_service_discovery()
             
-            # Test 3: Brain 3 Concierge Endpoint
-            await self.test_brain3_concierge()
+            # Test 3: Brain 3 Orchestrator Endpoint
+            await self.test_brain3_orchestrator()
             
-            # Test 4: K2-Vector-Hub Mayor's Office
+            # Test 4: K2-Vector-Hub Orchestrator Hub Service
             await self.test_k2_vector_hub()
             
             # Test 5: Complete Workflow
@@ -136,9 +136,9 @@ class FourBrainIntegrationTest:
         
         self.test_results["service_discovery"] = discovery_results
     
-    async def test_brain3_concierge(self):
-        """Test Brain 3 Concierge /ask endpoint"""
-        logger.info("🎯 Testing Brain 3 Concierge (The Front Door)...")
+    async def test_brain3_orchestrator(self):
+        """Test Brain 3 Orchestrator /ask endpoint"""
+        logger.info("🎯 Testing Brain 3 Orchestrator endpoint...")
         
         test_question = "Analyze this document for key insights"
         test_payload = {

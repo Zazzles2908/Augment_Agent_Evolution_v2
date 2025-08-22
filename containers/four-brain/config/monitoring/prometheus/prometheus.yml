@@ -15,3 +15,10 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']  # Internal port (mapped from 9093 externally)
     scrape_interval: 120s
+
+
+  # Triton metrics (explicitly scrape if Alloy is not scraping)
+  - job_name: 'triton'
+    static_configs:
+      - targets: ['localhost:8002']
+    scrape_interval: 30s

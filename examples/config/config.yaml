@@ -1,0 +1,22 @@
+# Demo configuration
+triton:
+  url: http://localhost:8000
+  embedding_model: qwen3_4b_embedding
+  reranker_model: qwen3_0_6b_reranking
+  generator_model: glm45_air
+supabase:
+  url: ${SUPABASE_URL}
+  key: ${SUPABASE_ANON_KEY}
+redis:
+  url: redis://localhost:6379/0
+
+
+hf:
+  embedding_tokenizer: Qwen/Qwen3-4B
+  reranker_tokenizer: Qwen/Qwen3-0.6B
+  generator_tokenizer: THUDM/glm-4-9b
+max_lengths:
+  embedding: 512
+  reranker_query: 256
+  reranker_doc: 512
+  generator: 512

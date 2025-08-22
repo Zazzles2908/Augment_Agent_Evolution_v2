@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Triton-centric ResourceManager with HRM Support
+Triton-centric ResourceManager (general)
 - Tracks VRAM budgets and model footprints
 - LRU eviction for on-demand models
 - Integrates with TritonRepositoryClient for load/unload
@@ -9,10 +9,8 @@ Dtype discipline (client-side):
 - ONNX Runtime models typically expect INT64 inputs (e.g., qwen3_embedding)
 - TensorRT explicit-batch models typically expect INT32 inputs (e.g., *_trt variants)
 
-HRM-Specific Policies (per docs/augment_code 07/09):
-- hrm_h_trt (H-Module): Always resident, FP16/FP8 precision (small footprint), strategic planning
-- hrm_l_trt (L-Module): On-demand, NVFP4 or FP8; evictable under pressure
-- Supporting models (Qwen3, Docling): Evictable based on LRU policy
+Policies:
+- Supporting models (Qwen3 embedding/reranker, Docling, GLM generation) may be loaded on-demand
 - Soft pressure at 75%, hard at 85% of total VRAM
 - Dynamic pool target ~8GB on 16GB GPU
 """
@@ -39,16 +37,14 @@ class ResourceManagerConfig:
     total_vram_gb: float = 16.0
     reserved_gb: float = 1.5
     always_loaded: Dict[str, float] = field(default_factory=lambda: {
-        # HRM H-Module (always resident). Small footprint per docs (~0.5GB target budget)
-        "hrm_h_trt": 0.5,
+        # Keep empty by default; adjust per deployment needs (e.g., always-on generation model)
     })
     registry: Dict[str, float] = field(default_factory=lambda: {
-        # HRM L-Module on-demand (~0.3GB), evictable
-        "hrm_l_trt": 0.3,
         # Qwen3 models (~2.0GB each) and Docling GPU (~2.0GB)
-        "qwen3_embedding_trt": 2.0,
-        "qwen3_reranker_trt": 2.0,
+        "qwen3_4b_embedding": 2.0,
+        "qwen3_0_6b_reranking": 2.0,
         "docling_gpu": 2.0,
+        # Optionally add generation model footprint if managed here, e.g.: "glm45_air": 12.0
     })
     soft_threshold: float = 0.75
     hard_threshold: float = 0.85

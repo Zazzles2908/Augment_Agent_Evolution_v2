@@ -92,7 +92,7 @@ class Brain1Manager:
             if self.triton_enabled:
                 logger.info("🚀 USE_TRITON=true: initializing Triton client and skipping local model load")
                 triton_url = os.getenv("TRITON_URL", config.get("triton_url", "http://triton:8000"))
-                model_name = os.getenv("TRITON_MODEL_NAME", config.get("triton_model_name", "qwen3_embedding"))
+                model_name = os.getenv("TRITON_MODEL_NAME", config.get("triton_model_name", "qwen3_embedding_trt"))
                 self.triton_client = TritonEmbeddingClient(
                     url=triton_url,
                     model_name=model_name,

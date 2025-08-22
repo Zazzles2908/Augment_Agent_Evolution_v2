@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 """
-HRM Orchestrator Hub - The Mayor's Office
+Orchestrator Hub Service
 Global Strategy Coordinator for Four-Brain Architecture
 
-This service implements the HRM-first orchestration as specified in HRM_high&low_module.md:
-- Runs on port 9098
-- HRM is the coordinator: H/L modules are always-on
-- Reads from Redis channel 'vector_jobs'
-- Publishes strategy plans to Redis channel 'strategy_plans'
-- Integrates Moonshot Kimi API for strategy reasoning
+This service coordinates the multi-brain stack (Docling, Embedding, Reranker, Generation),
+reads from Redis channels, and publishes strategy plans.
 
 Zero Fabrication Policy: ENFORCED.
 """
@@ -36,20 +32,19 @@ from orchestrator_hub.core.moonshot_client import MoonshotClient
 from orchestrator_hub.communication.redis_coordinator import RedisCoordinator
 from orchestrator_hub.core.supabase_manager import supabase_manager, UserProfile
 from shared.redis_client import RedisStreamsClient, send_docling_request
-from shared.hrm import HRMOrchestrator, BlackwellOptimizer, BlackwellOptimizationConfig
+# HRM removed from project; orchestration no longer depends on HRM
 
-# Import Blackwell Quantization System for HRM orchestration
+# (Optional) Import Blackwell Quantization System for model optimizations (if used)
 try:
     import sys
     import os
     sys.path.append('/workspace/src')
     from core.quantization import blackwell_quantizer, FOUR_BRAIN_QUANTIZATION_CONFIG
     BLACKWELL_AVAILABLE = True
-    logging.getLogger(__name__).info("✅ Blackwell quantization system imported successfully for HRM orchestrator")
+    logging.getLogger(__name__).info("✅ Blackwell quantization system imported successfully for orchestrator")
 except ImportError as e:
     BLACKWELL_AVAILABLE = False
-    logging.getLogger(__name__).warning(f"⚠️ Blackwell quantization not available for HRM orchestration: {e}")
-    logging.getLogger(__name__).warning("⚠️ HRM orchestrator will use coordination-only mode")
+    logging.getLogger(__name__).warning(f"⚠️ Blackwell quantization not available: {e}")
 
 # Pydantic models for API requests/responses
 class DocumentProcessRequest(BaseModel):
@@ -106,8 +101,9 @@ logger = logging.getLogger(__name__)
 strategy_manager: StrategyManager = None
 redis_coordinator: RedisCoordinator = None
 redis_streams_client: RedisStreamsClient = None
-hrm_orchestrator: HRMOrchestrator = None
-blackwell_optimizer: BlackwellOptimizer = None
+# HRM removed
+# hrm_orchestrator removed
+# blackwell_optimizer removed
 
 # Task tracking
 active_tasks: Dict[str, Dict[str, Any]] = {}
@@ -291,7 +287,7 @@ async def orchestrate_chat_enhancement(task_id: str, query: str, context: Option
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """FastAPI lifespan manager for HRM Orchestrator Hub"""
+    """FastAPI lifespan manager for Orchestrator Hub Service"""
     global strategy_manager, redis_coordinator, redis_streams_client, hrm_orchestrator, blackwell_optimizer
 
     # Phase 1 smoke mode: skip heavy dependencies
@@ -301,7 +297,7 @@ async def lifespan(app: FastAPI):
         return
 
     # Startup
-    logger.info("🏛️ Starting HRM Orchestrator Hub (The Mayor's Office)...")
+    logger.info("Starting Orchestrator Hub Service...")
     from datetime import datetime
     logger.info(f"📅 Started: {datetime.now().strftime('%Y-%m-%d %H:%M AEST')}")
 
@@ -329,53 +325,20 @@ async def lifespan(app: FastAPI):
         else:
             logger.warning("⚠️ Supabase database connection failed - continuing without database features")
 
-        # Initialize HRM Orchestrator and Blackwell Optimizer
-        try:
-            # Initialize Blackwell Optimizer
-            blackwell_config = BlackwellOptimizationConfig(
-                enable_thread_block_clustering=True,
-                enable_tma_optimization=True,
-                enable_dpx_instructions=True,
-                enable_precision_optimization=True,
-                enable_memory_optimization=True
-            )
-            blackwell_optimizer = BlackwellOptimizer(blackwell_config)
-            logger.info("🚀 Blackwell Optimizer initialized")
-
-            # Initialize HRM Orchestrator with Triton client
-            if _triton_client:
-                hrm_orchestrator = HRMOrchestrator(
-                    triton_client=_triton_client,
-                    resource_manager=_rm,
-                    blackwell_optimizations=True
-                )
-
-                # Initialize HRM system
-                hrm_success = await hrm_orchestrator.initialize()
-                if hrm_success:
-                    logger.info("✅ HRM Orchestrator initialized successfully")
-                else:
-                    logger.warning("⚠️ HRM Orchestrator initialization failed - continuing without HRM features")
-            else:
-                logger.warning("⚠️ No Triton client available - HRM Orchestrator disabled")
-
-        except Exception as e:
-            logger.error(f"❌ HRM initialization failed: {e}")
-            logger.warning("⚠️ Continuing without HRM features")
+        # HRM removed: Orchestrator no longer initializes HRM or Blackwell-specific optimizations here
 
         # Start the main coordination loop
         asyncio.create_task(coordination_loop())
 
-        logger.info("✅ HRM Orchestrator initialization completed successfully")
-        logger.info("🏛️ The Mayor's Office is now open for business")
+        # Orchestrator initialized
 
         yield
 
     except Exception as e:
-        logger.error(f"❌ Failed to initialize K2-Vector-Hub service: {e}")
+        logger.error(f"❌ Failed to initialize Orchestrator Hub service: {e}")
         raise
     finally:
-        logger.info("🛑 Shutting down K2-Vector-Hub Service...")
+        logger.info("🛑 Shutting down Orchestrator Hub Service...")
         if redis_coordinator:
             await redis_coordinator.disconnect()
         if redis_streams_client:
@@ -384,7 +347,7 @@ async def lifespan(app: FastAPI):
 
 async def coordination_loop():
     """Main coordination loop - The Mayor's decision-making process"""
-    logger.info("🔄 Starting HRM Orchestrator coordination loop...")
+    logger.info("🔄 Starting Orchestrator coordination loop...")
 
     while True:
         try:
@@ -411,7 +374,7 @@ async def coordination_loop():
 
 # Create FastAPI application
 app = FastAPI(
-    title="HRM Orchestrator Hub - The Mayor's Office",
+    title="Orchestrator Hub Service",
     description="Global Strategy Coordinator for Four-Brain Architecture",
     version="1.0.0",
     lifespan=lifespan
@@ -427,7 +390,7 @@ try:
         _rm = TritonResourceManager(_triton_client, cfg)
     else:
         _rm = TritonResourceManager(_triton_client)
-    logger.info("✅ Triton ResourceManager initialized and hrm_h_trt preload attempted")
+    logger.info("✅ Triton ResourceManager initialized")
 except Exception as e:
     _triton_client = None
     _rm = None
@@ -531,95 +494,20 @@ async def orchestrator_metrics():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Metrics computation failed: {e}")
 
-# HRM-specific admin endpoints
-@app.get("/admin/hrm/status")
-async def admin_hrm_status():
-    """Get HRM Orchestrator status and metrics"""
-    global hrm_orchestrator, blackwell_optimizer
-
-    if hrm_orchestrator is None:
-        raise HTTPException(status_code=503, detail="HRM Orchestrator unavailable")
-
-    status = hrm_orchestrator.get_status()
-
-    # Add Blackwell optimizer status if available
-    if blackwell_optimizer:
-        status["blackwell_optimizer"] = blackwell_optimizer.get_optimization_status()
-
-    return status
-
-@app.post("/admin/hrm/process")
-async def admin_hrm_process(payload: dict):
-    """Process task through HRM hierarchical convergence pattern"""
-    global hrm_orchestrator
-
-    if hrm_orchestrator is None:
-        raise HTTPException(status_code=503, detail="HRM Orchestrator unavailable")
-
-    try:
-        input_data = payload.get("input_data", {})
-        context = payload.get("context", {})
-        constraints = payload.get("constraints", {})
-        max_iterations = payload.get("max_iterations", 10)
-        convergence_threshold = payload.get("convergence_threshold", 0.85)
-
-        result = await hrm_orchestrator.process_task(
-            input_data=input_data,
-            context=context,
-            constraints=constraints,
-            max_iterations=max_iterations,
-            convergence_threshold=convergence_threshold
-        )
-
-        return result
-
-    except Exception as e:
-        logger.error(f"❌ HRM processing failed: {e}")
-        raise HTTPException(status_code=500, detail=f"HRM processing failed: {str(e)}")
-
-@app.post("/admin/blackwell/optimize")
-async def admin_blackwell_optimize(payload: dict):
-    """Apply Blackwell optimizations to a model"""
-    global blackwell_optimizer
-
-    if blackwell_optimizer is None:
-        raise HTTPException(status_code=503, detail="Blackwell Optimizer unavailable")
-
-    try:
-        model_name = payload.get("model_name")
-        model_type = payload.get("model_type", "general")
-        precision = payload.get("precision", "fp16")
-
-        if not model_name:
-            raise HTTPException(status_code=400, detail="Missing 'model_name'")
-
-        from shared.hrm import BlackwellPrecisionMode
-        precision_mode = BlackwellPrecisionMode(precision)
-
-        result = await blackwell_optimizer.optimize_model(
-            model_name=model_name,
-            model_type=model_type,
-            precision=precision_mode
-        )
-
-        return result
-
-    except Exception as e:
-        logger.error(f"❌ Blackwell optimization failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Blackwell optimization failed: {str(e)}")
+# HRM admin endpoints removed
 
 @app.get("/")
 async def root():
     """Root endpoint with service information"""
     return {
-        "service": "HRM Orchestrator Hub - The Mayor's Office",
+        "service": "Orchestrator Hub Service",
         "version": "1.0.0",
         "status": "operational",
         "port": 9098,
         "role": "Global Strategy Coordinator",
         "capabilities": [
             "strategy_decision_making",
-            "hrm_hl_coordination",
+            
             "moonshot_kimi_integration",
             "redis_coordination",
             "brain_allocation_optimization",
@@ -640,7 +528,7 @@ async def health_check():
     health_status = {
         "status": "healthy",
         "timestamp": time.time(),
-        "service": "hrm_orchestrator",
+        "service": "orchestrator_hub",
         "version": "1.0.0",
         "components": {}
     }
@@ -938,18 +826,18 @@ async def get_metrics():
             redis_messages_received = redis_stats.get("messages_received", 0)
             connected = 1 if redis_stats.get("connected", False) else 0
 
-        # Prometheus format metrics
-        metrics = f"""# HELP k2_hub_uptime_seconds Service uptime in seconds
-# TYPE k2_hub_uptime_seconds gauge
-k2_hub_uptime_seconds {uptime_seconds}
+        # Prometheus format metrics (renamed from legacy k2_hub_* to orchestrator_hub_*)
+        metrics = f"""# HELP orchestrator_hub_uptime_seconds Service uptime in seconds
+# TYPE orchestrator_hub_uptime_seconds gauge
+orchestrator_hub_uptime_seconds {uptime_seconds}
 
-# HELP k2_hub_jobs_processed_total Total number of jobs processed
-# TYPE k2_hub_jobs_processed_total counter
-k2_hub_jobs_processed_total {total_jobs_processed}
+# HELP orchestrator_hub_jobs_processed_total Total number of jobs processed
+# TYPE orchestrator_hub_jobs_processed_total counter
+orchestrator_hub_jobs_processed_total {total_jobs_processed}
 
-# HELP k2_hub_decision_time_ms Average decision time in milliseconds
-# TYPE k2_hub_decision_time_ms gauge
-k2_hub_decision_time_ms {avg_decision_time}
+# HELP orchestrator_hub_decision_time_ms Average decision time in milliseconds
+# TYPE orchestrator_hub_decision_time_ms gauge
+orchestrator_hub_decision_time_ms {avg_decision_time}
 
 # HELP orchestrator_hub_active_strategies Number of active strategies
 # TYPE orchestrator_hub_active_strategies gauge
@@ -967,9 +855,9 @@ orchestrator_hub_redis_messages_sent_total {redis_messages_sent}
 # TYPE orchestrator_hub_redis_messages_received_total counter
 orchestrator_hub_redis_messages_received_total {redis_messages_received}
 
-# HELP k2_hub_connected Connection status (1=connected, 0=disconnected)
-# TYPE k2_hub_connected gauge
-k2_hub_connected {connected}
+# HELP orchestrator_hub_connected Connection status (1=connected, 0=disconnected)
+# TYPE orchestrator_hub_connected gauge
+orchestrator_hub_connected {connected}
 """
 
         return Response(
@@ -979,9 +867,9 @@ k2_hub_connected {connected}
 
     except Exception as e:
         logger.error(f"❌ Metrics collection failed: {e}")
-        error_metrics = f"""# HELP k2_hub_error Error status
-# TYPE k2_hub_error gauge
-k2_hub_error 1
+        error_metrics = f"""# HELP orchestrator_hub_error Error status
+# TYPE orchestrator_hub_error gauge
+orchestrator_hub_error 1
 """
         return Response(
             content=error_metrics,
@@ -991,7 +879,7 @@ k2_hub_error 1
 if __name__ == "__main__":
     import uvicorn
 
-    logger.info("🏛️ Starting HRM Orchestrator Hub (The Mayor's Office)...")
+    logger.info("Starting Orchestrator Hub Service...")
 
     # Configuration
     host = os.getenv("HOST", "0.0.0.0")

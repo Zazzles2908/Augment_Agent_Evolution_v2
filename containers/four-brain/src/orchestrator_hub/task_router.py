@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Intelligent Task Router for K2-Vector-Hub
+Intelligent Task Router for Orchestrator Hub
 Implements smart task routing and brain coordination logic
 
-This module provides intelligent task routing capabilities for the K2-Vector-Hub,
+This module provides intelligent task routing capabilities for the Orchestrator Hub,
 replacing hardcoded routing with dynamic, performance-based brain selection.
 
 Key Features:
@@ -103,7 +103,7 @@ class BrainMetrics:
 
 class IntelligentTaskRouter:
     """
-    Intelligent task router for K2-Vector-Hub coordination
+    Intelligent task router for Orchestrator Hub coordination
     Implements smart routing based on brain capabilities and performance
     """
     

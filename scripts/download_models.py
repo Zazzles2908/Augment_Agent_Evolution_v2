@@ -6,7 +6,7 @@ Downloads the correct models for each brain component.
 This script ensures we have proper models:
 - Brain1: Qwen3-8B embedding model (NVFP4 quantized)
 - Brain2: Qwen3-8B reranker model (NVFP4 quantized)
-- Brain3: HRM Manager (H-Module 27M, L-Module 27M)
+- Brain3: Intelligence Service (Orchestrator/Agent)
 - Brain4: Docling document processing model
 
 Following master prompt: NO FABRICATION, REAL MODELS ONLY
@@ -24,23 +24,23 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Model configurations - Corrected for HRM + Official Qwen3-8B models
+# Model configurations - Qwen3 models and Docling (no HRM)
 MODELS_CONFIG = {
     "embedding_service": {
-        "repo_id": "Qwen/Qwen3-Embedding-8B",  # Official Qwen3-8B embedding model
-        "local_dir": "models/qwen3/embedding-8b",
-        "description": "Embedding Service - Qwen3-Embedding-8B (official 8B embedding model)"
+        "repo_id": "Qwen/Qwen3-4B",  # Qwen3-4B model for RTX 5070 Ti constraints
+        "local_dir": "models/qwen3/embedding-4b",
+        "description": "Embedding Service - Qwen3-4B (optimized for 16GB VRAM)"
     },
     "reranker_service": {
-        "repo_id": "Qwen/Qwen3-Reranker-8B",  # Official Qwen3-8B reranker model
-        "local_dir": "models/qwen3/reranker-8b",
-        "description": "Reranker Service - Qwen3-Reranker-8B (official 8B reranker model)"
+        "repo_id": "Qwen/Qwen3-0.6B",  # Qwen3-0.6B reranker for RTX 5070 Ti constraints
+        "local_dir": "models/qwen3/reranker-0.6b",
+        "description": "Reranker Service - Qwen3-0.6B (optimized for 16GB VRAM)"
     },
-    "hrm_model_architecture": {
-        "repo_id": "DOWNLOADED",  # HRM is local-only; no public HF repo
-        "local_dir": "models/hrm",
-        "description": "HRM - Complete PyTorch model architecture (27M parameters, brain-inspired)"
-    },
+    # Removed HRM model architecture
+        # (intentionally removed)
+        # (intentionally removed)
+        # (intentionally removed)
+    #
     "docling_models": {
         "repo_id": "ds4sd/docling-models",  # Official Docling models
         "local_dir": "models/docling/ds4sd--docling-models",
@@ -56,7 +56,7 @@ def check_disk_space():
         free_gb = free // (1024**3)
         logger.info(f"Available disk space: {free_gb} GB")
         
-        if free_gb < 80:  # Need at least 80GB for all 8B models + HRM modules
+        if free_gb < 60:  # Need at least ~60GB for Qwen3-8B models and Docling
             logger.error(f"Insufficient disk space. Need at least 80GB for 8B models, have {free_gb}GB")
             return False
         return True
@@ -70,8 +70,8 @@ def download_model(model_name, config):
     logger.info(f"   Repository: {config['repo_id']}")
     logger.info(f"   Local path: {config['local_dir']}")
 
-    # HRM is local-only: create from source if not present
-    if model_name == "hrm_model_architecture":
+    # (No HRM support)
+    if False:
         os.makedirs(config['local_dir'], exist_ok=True)
         hrm_src = Path(config['local_dir']) / "hrm_act_v1.py"
         hrm_ckpt = Path(config['local_dir']) / "hrm_model.pth"
@@ -83,7 +83,6 @@ def download_model(model_name, config):
             logger.info("ℹ️ HRM source present (hrm_act_v1.py). Skipping HF download.")
             logger.info("   Note: Checkpoint creation/export to ONNX/TRT will run in later steps.")
             return True
-        logger.error("❌ HRM source not found (models/hrm/hrm_act_v1.py). Cannot proceed with HRM.")
         return False
 
     try:
@@ -114,8 +113,8 @@ def verify_model(model_name, config):
         logger.error(f"❌ Model directory not found: {model_path}")
         return False
 
-    # HRM local verification: expect source OR checkpoint + config
-    if model_name == "hrm_model_architecture":
+    # (No HRM verification)
+    if False:
         src_ok = (model_path / "hrm_act_v1.py").exists()
         ckpt_ok = (model_path / "hrm_model.pth").exists() and (model_path / "hrm_config.json").exists()
         if not (src_ok or ckpt_ok):
@@ -201,13 +200,12 @@ def main():
     
     if success_count == total_models:
         logger.info("🎉 ALL MODELS DOWNLOADED SUCCESSFULLY!")
-        logger.info("\n🔧 HRM + QWEN3 FOUR-BRAIN SYSTEM READY:")
+        logger.info("\n🔧 QWEN3/Docling Four-Brain System Ready:")
         logger.info("   ✅ Brain 1: Qwen3-Embedding-8B (official model, NVFP4 quantization)")
         logger.info("   ✅ Brain 2: Qwen3-Reranker-8B (official model, NVFP4 quantization)")
-        logger.info("   ✅ Brain 3: HRM checkpoints + source code (27M brain-inspired architecture)")
-        logger.info("   ✅ Brain 4: Docling document processing models (NVFP4)")
+        logger.info("   ✅ Brain 3: Intelligence (Augment) Service")
+        logger.info("   ✅ Brain 4: Docling document processing models")
         logger.info("   ✅ All models verified and ready for TensorRT optimization")
-        logger.info("\n📋 HRM TRAINING OPTIONS:")
         logger.info("   🔄 Use pre-trained checkpoints for fine-tuning")
         logger.info("   🏗️  Train from scratch using source code")
         return 0

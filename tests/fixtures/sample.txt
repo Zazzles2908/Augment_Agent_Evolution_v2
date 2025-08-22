@@ -1,0 +1,3 @@
+This is a small sample document used for testing the end-to-end demo pipeline.
+It contains a few sentences so tokenization and embedding work can be exercised.
+

@@ -20,6 +20,7 @@ def main():
     ap.add_argument("--opset", type=int, default=17)
     ap.add_argument("--max_len", type=int, default=512)
     ap.add_argument("--device", default="cpu")
+    ap.add_argument("--mrl_dim", type=int, default=2000, help="MRL truncation target dimension (default: 2000 for Supabase)")
     args = ap.parse_args()
 
     try:
@@ -52,6 +53,11 @@ def main():
             y = out.pooler_output
         else:
             y = out.last_hidden_state.mean(dim=1)
+
+        # Apply MRL truncation if needed
+        if y.shape[-1] > args.mrl_dim:
+            log.info(f"Applying MRL truncation: {y.shape[-1]} -> {args.mrl_dim} dimensions")
+            y = y[:, :args.mrl_dim]
 
     # Build dynamic axes mapping for 2D inputs and 2D output [N,D]
     dynamic_axes = {

@@ -32,3 +32,25 @@ containers/**/triton/model_repository/**/[0-9]*/
 .pytest_cache/
 .tmp/
 tmp/
+
+
+# Large artifacts and logs
+*.onnx
+*.plan
+*.pt
+*.pth
+*.ckpt
+*.log
+*.tmp
+*.rdb
+
+# Docker artifacts
+**/docker/*.log
+**/docker/*.rdb
+
+# Local tools cache
+.supabase/
+node_modules/
+
+# OS/Linux
+lost+found/

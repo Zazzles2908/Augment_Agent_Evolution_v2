@@ -274,11 +274,13 @@ class StreamDefinitions:
         StreamConsumerGroup(StreamNames.EMBEDDING_RESULTS, "brain4_embeddings", "brain4_worker")
     ]
 
-    # K2 Hub groups
-    K2_HUB_GROUPS = [
-        StreamConsumerGroup(StreamNames.DOCLING_RESULTS, "k2_coordinators", "k2_hub"),
-        StreamConsumerGroup(StreamNames.AGENTIC_RESULTS, "k2_coordinators", "k2_hub")
+    # Orchestrator Hub groups (legacy K2 naming replaced)
+    ORCHESTRATOR_HUB_GROUPS = [
+        StreamConsumerGroup(StreamNames.DOCLING_RESULTS, "orchestrator_coordinators", "orchestrator_hub"),
+        StreamConsumerGroup(StreamNames.AGENTIC_RESULTS, "orchestrator_coordinators", "orchestrator_hub")
     ]
+    # Backwards compatibility alias
+    K2_HUB_GROUPS = ORCHESTRATOR_HUB_GROUPS
 
     # Memory system groups
     MEMORY_GROUPS = [

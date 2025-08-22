@@ -72,14 +72,14 @@ class SupabaseManager:
                 max_size=5,
                 command_timeout=10,
                 server_settings={
-                    'application_name': 'four_brain_k2_hub'
+                    'application_name': 'four_brain_orchestrator'
                 }
             )
             logger.info("✅ Supabase connection pool initialized successfully")
             return True
         except Exception as e:
             logger.warning(f"⚠️ Supabase connection failed (expected in isolated container): {e}")
-            logger.info("🔄 K2-Hub will continue with local-only features")
+            logger.info("🔄 Orchestrator Hub will continue with local-only features")
             return False
     
     async def close(self):

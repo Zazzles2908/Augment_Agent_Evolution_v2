@@ -1,6 +1,0 @@
-[Rank 0, World Size 1]: Epoch 0
-[1;34mwandb[0m: 
-[1;34mwandb[0m: 🚀 View run [33mHierarchicalReasoningModel_ACTV1 organic-bear[0m at: [34mhttps://wandb.ai/jajireen1-hrm_project/Sudoku-extreme-1k-aug-1000%20ACT-torch/runs/sf6tfxxj[0m
-[1;34mwandb[0m: Find logs at: [1;35mwandb/run-20250817_213041-sf6tfxxj/logs[0m
-[Rank 0, World Size 1]: Epoch 0
-[Rank 0, World Size 1]: Epoch 0

@@ -23,14 +23,14 @@ logger = logging.getLogger(__name__)
 class MoonshotClient:
     """
     Moonshot Kimi API Client for strategy decision making
-    Implements real API integration for K2-Vector-Hub
+    Implements real API integration for Orchestrator Hub (legacy K2-Vector-Hub naming removed)
     """
     
     def __init__(self):
         """Initialize Moonshot client with environment configuration"""
-        self.api_key = os.getenv("K2_API_KEY")
-        self.api_url = os.getenv("K2_API_URL", "https://api.moonshot.cn/v1/chat/completions")
-        self.model = os.getenv("K2_MODEL", "kimi-thinking-preview")
+        self.api_key = os.getenv("K2_API_KEY", "")
+        self.api_url = os.getenv("K2_API_URL", "https://api.moonshot.ai/v1/chat/completions")
+        self.model = os.getenv("K2_MODEL", "kimi-k2-0711-preview")
         self.timeout = int(os.getenv("K2_TIMEOUT", "30"))
         self.max_tokens = int(os.getenv("K2_MAX_TOKENS", "3000"))
         

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Advanced Strategy Planner for K2-Vector-Hub
+Advanced Strategy Planner for Orchestrator Hub
 Implements sophisticated execution strategy planning for multi-brain coordination
 
 This module provides advanced strategy planning capabilities that go beyond simple

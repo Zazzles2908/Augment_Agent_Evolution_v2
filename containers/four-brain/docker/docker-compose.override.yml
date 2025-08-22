@@ -1,0 +1,6 @@
+services:
+  triton:
+    volumes:
+      - ../../triton/model_repository:/models
+      - ../../cache:/cache:rw
+

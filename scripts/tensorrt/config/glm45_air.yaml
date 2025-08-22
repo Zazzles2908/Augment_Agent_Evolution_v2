@@ -1,0 +1,11 @@
+# Configuration for glm45_air
+hf:
+  model_id: THUDM/glm-4-9b
+export:
+  seq_length: 1024
+builder:
+  workspace_gb: 10
+  min_batch: 1x256
+  opt_batch: 1x512
+  max_batch: 1x1024
+

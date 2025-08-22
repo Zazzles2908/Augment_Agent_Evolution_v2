@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 class RedisCoordinator:
     """
     Redis Coordinator for K2-Vector-Hub
-    Manages Redis communication for the Mayor's Office
+    Manages Redis communication for the Orchestrator Hub Service
     """
     
     def __init__(self, redis_url: str = None):
@@ -42,9 +42,9 @@ class RedisCoordinator:
         self.pubsub = None
         self.connected = False
         
-        # Channel names (per fix_containers.md)
-        self.vector_jobs_channel = "vector_jobs"      # Input: Brain 3 publishes jobs here
-        self.strategy_plans_channel = "strategy_plans" # Output: K2-Vector-Hub publishes strategies here
+        # Channel names
+        self.vector_jobs_channel = "vector_jobs"      # Input: Orchestrator publishes jobs here
+        self.strategy_plans_channel = "strategy_plans" # Output: Orchestrator publishes strategies here
         
         # Performance tracking
         self.messages_sent = 0
@@ -55,7 +55,7 @@ class RedisCoordinator:
         # Job queue
         self.pending_jobs = asyncio.Queue()
         
-        logger.info(f"📡 Redis Coordinator initialized for K2-Vector-Hub")
+        logger.info(f"📡 Redis Coordinator initialized for Orchestrator Hub")
     
     async def connect(self) -> bool:
         """Connect to Redis and setup communication channels"""
@@ -79,7 +79,7 @@ class RedisCoordinator:
             self.connected = True
             self.connection_time = time.time() - start_time
             
-            logger.info(f"✅ K2-Vector-Hub Redis connection established in {self.connection_time:.3f}s")
+            logger.info(f"✅ Orchestrator Hub Redis connection established in {self.connection_time:.3f}s")
             logger.info(f"📡 Subscribed to: {self.vector_jobs_channel}")
             logger.info(f"📤 Publishing to: {self.strategy_plans_channel}")
             
