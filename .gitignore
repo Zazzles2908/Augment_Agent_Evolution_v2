@@ -51,6 +51,21 @@ tmp/
 # Local tools cache
 .supabase/
 node_modules/
+# Track Zen MCP server code, but ignore env, venv, logs and caches
+# (specific ignores below keep secrets/artifacts out)
+# zen-mcp-server
+zen-mcp-server/.zen_venv/
+zen-mcp-server/logs/
+zen-mcp-server/**/__pycache__/
+zen-mcp-server/**/*.log
+zen-mcp-server/.env
+zen-mcp-server/*.env
+zen-mcp-server/**/.env
+zen-mcp-server/**/tmp/
+zen-mcp-server/tmp/
+zen-mcp-server/**/wrapper_error.log
+zen-mcp-server/**/mcp_server.log
+.venv_download
 
 # OS/Linux
 lost+found/
