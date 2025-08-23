@@ -52,12 +52,12 @@ Hardware
     or (CUDA 12.8): docker run --rm --gpus all nvidia/cuda:12.8.0-runtime-ubuntu24.04 nvidia-smi
 
 6) Triton Inference Server
-- Version: 25.07+ (>=25.06 due to Aug 2025 security bulletin)
+- Version: 25.08-py3 (align with PyTorch 25.08 images)
 - Recommended: Use NGC container (py3 variant)
-  - docker pull nvcr.io/nvidia/tritonserver:25.07-py3
+  - docker pull nvcr.io/nvidia/tritonserver:25.08-py3
   - Run (example):
     docker run --rm --gpus all -p8000:8000 -p8001:8001 -p8002:8002 \
-      -v /models:/models nvcr.io/nvidia/tritonserver:25.07-py3 \
+      -v /models:/models nvcr.io/nvidia/tritonserver:25.08-py3 \
       tritonserver --model-repository=/models --model-control-mode=explicit
 
 7) Datastores and caching

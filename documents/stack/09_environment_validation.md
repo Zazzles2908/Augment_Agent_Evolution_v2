@@ -2,16 +2,16 @@
 
 GPU/Driver/CUDA/TRT
 - nvidia-smi shows driver >= 570/575 line
-- nvcc --version shows CUDA 12.8
+- nvcc --version shows CUDA 13.0 (12.8 acceptable)
 - dpkg -l | grep TensorRT shows 10.8 packages
 
 Container runtime
 - docker --version (27.x)
 - nvidia-ctk --version (>= 1.17.8) and runtime configured
-- docker run --rm --gpus all nvidia/cuda:12.8.0-runtime-ubuntu24.04 nvidia-smi
+- docker run --rm --gpus all nvidia/cuda:13.0.0-runtime-ubuntu24.04 nvidia-smi
 
 Triton
-- Container runs: nvcr.io/nvidia/tritonserver:25.07-py3
+- Container runs: nvcr.io/nvidia/tritonserver:25.08-py3
 - Health: curl http://localhost:8000/v2/health/ready
 - Metrics: curl http://localhost:8002/metrics | head
 

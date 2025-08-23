@@ -6,11 +6,11 @@ Goal
 
 Components
 - Docling: document extraction + chunking
-- Qwen3-4B (NVFP4): embeddings via Triton
+- Qwen3-4B (FP8): embeddings via Triton
 - Supabase (pgvector 2000-dim) + Redis: storage and caching
 - Qwen3-0.6B (NVFP4): reranker via Triton
 - GLM-4.5 Air (NVFP4): generation via Triton
-- Triton: multi-model serving and metrics
+- Triton: multi-model serving and metrics (25.08-py3; explicit model control; dynamic batching)
 - Prometheus + Grafana + Loki + Alloy: observability
 
 Dataflow
@@ -22,7 +22,7 @@ Dataflow
 
 Key decisions
 - 2000-dim embeddings to match pgvector index limit (Supabase docs)
-- NVFP4 quantization for GPU fit and speed; Triton for concurrency
+- Quantisation: FP8 for embeddings; NVFP4 for reranker, Docling, and GLM‑4.5 Air; Triton for concurrency
 - Strong monitoring: collect metrics from Triton at :8002/metrics
 
 Next
@@ -36,7 +36,7 @@ Platform & Versions
 - OS: Ubuntu 24.04 LTS
 - GPU: NVIDIA RTX 5070 Ti 16GB VRAM; System RAM: 64GB
 - Drivers/SDK: NVIDIA driver 550+, CUDA 13.x, TensorRT 10.13.x
-- Serving: NVIDIA Triton Inference Server 25.07+ (explicit model control)
+- Serving: NVIDIA Triton Inference Server 25.08-py3 (explicit model control)
 
 Canonical Model Names (Triton model_repository)
 - qwen3_4b_embedding (embeddings, 2000-dim)
