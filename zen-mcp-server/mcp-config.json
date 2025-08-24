@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "zen": {
+      "type": "stdio",
+      "trust": true,
+      "command": "C:\\Project\\Augment_Agent_Evolution_v2\\zen-mcp-server\\.zen_venv\\Scripts\\python.exe",
+      "args": [
+        "-u",
+        "C:\\Project\\Augment_Agent_Evolution_v2\\zen-mcp-server\\server.py"
+      ],
+      "cwd": "C:\\Project\\Augment_Agent_Evolution_v2\\zen-mcp-server",
+      "env": {
+        "PYTHONPATH": "C:\\Project\\Augment_Agent_Evolution_v2\\zen-mcp-server",
+        "ENV_FILE": "C:\\Project\\Augment_Agent_Evolution_v2\\zen-mcp-server\\.env",
+        "AUGGIE_CLI": "true",
+        "AUGGIE_CONFIG": "C:\\Project\\Augment_Agent_Evolution_v2\\zen-mcp-server\\auggie-config.json",
+        "ACCESSTOKEN": "51c1ebe0192b4c79baba056652792cab3664fcf356821f18b9c9d7135369861b",
+        "TENANTURL": "https:\\/\\/d18.api.augmentcode.com\\/",
+        "SCOPE": "read write"
+      }
+    }
+  }
+}
