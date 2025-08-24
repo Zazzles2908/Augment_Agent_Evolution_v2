@@ -3,7 +3,7 @@
 Dynamic VRAM Manager for Four-Brain System
 Intelligent GPU memory allocation with TORCH_CUDA_MEMORY_FRACTION and safety nets
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Dynamic VRAM allocation based on available resources and workload demands
 """

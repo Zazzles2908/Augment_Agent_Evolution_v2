@@ -229,9 +229,9 @@ async def orchestrate_semantic_search(task_id: str, query: str, limit: int = 10,
         raise
 
 async def orchestrate_chat_enhancement(task_id: str, query: str, context: Optional[str] = None, user_id: Optional[str] = None) -> Dict[str, Any]:
-    """Orchestrate chat enhancement: Brain-3 (Augment) with personalization"""
+    """Orchestrate chat enhancement: Brain-3 (Zazzles's Agent) with personalization"""
     try:
-        # Prepare request for Brain-3 (Augment Intelligence)
+        # Prepare request for Brain-3 (Zazzles's Agent Intelligence)
         brain3_request = {
             "task_id": task_id,
             "query": query,
@@ -249,7 +249,7 @@ async def orchestrate_chat_enhancement(task_id: str, query: str, context: Option
             "updated_at": datetime.utcnow().isoformat()
         }
 
-        # Send request to Brain-3 (Augment Intelligence) using the /process endpoint
+        # Send request to Brain-3 (Zazzles's Agent Intelligence) using the /process endpoint
         import httpx
         brain3_url = "http://four-brain-brain3:8003/brain3/process"
         brain3_payload = {
@@ -709,7 +709,7 @@ async def semantic_search(request: SemanticSearchRequest, user_id: str = Depends
 @app.post("/api/v1/chat-enhance", response_model=ChatEnhanceResponse)
 async def chat_enhance(request: ChatEnhanceRequest):
     """
-    Enhance chat interaction: Brain-3 (Augment) with personalization
+    Enhance chat interaction: Brain-3 (Zazzles's Agent) with personalization
     Provides intelligent, context-aware responses with user personalization.
     """
     try:
@@ -734,7 +734,7 @@ async def chat_enhance(request: ChatEnhanceRequest):
             brain3_data = brain3_result.get("result", {})
             brain3_response = brain3_data.get("ai_response", brain3_data.get("response", "Brain-3 processed request successfully"))
             brain3_confidence = brain3_data.get("confidence", 0.8)
-            brain3_sources = brain3_data.get("sources", [{"type": "brain3", "title": "Augment Intelligence", "confidence": 0.8}])
+            brain3_sources = brain3_data.get("sources", [{"type": "brain3", "title": "Zazzles's Agent Intelligence", "confidence": 0.8}])
 
             return ChatEnhanceResponse(
                 task_id=task_id,

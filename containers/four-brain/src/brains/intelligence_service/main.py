@@ -8,7 +8,7 @@ initializing and starting the Brain 3 intelligence service with proper
 error handling and graceful shutdown.
 
 Created: 2025-08-16 AEST
-Author: AugmentAI - Four-Brain System v2
+Author: Zazzles's Agent - Four-Brain System v2
 """
 
 import asyncio

@@ -51,8 +51,8 @@ services:
     mem_limit: ${REDIS_MEM_LIMIT:-2g}
     cpus: ${REDIS_CPUS:-1}
     volumes:
-      - ./augmentai-redis:/data
-      - ./data/configs/redis/augmentai-redis.conf:/etc/redis/redis.conf:ro
+      - ./Zazzles's Agent-redis:/data
+      - ./data/configs/redis/Zazzles's Agent-redis.conf:/etc/redis/redis.conf:ro
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     networks:

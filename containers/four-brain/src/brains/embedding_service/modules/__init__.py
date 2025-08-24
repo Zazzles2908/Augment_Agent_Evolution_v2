@@ -10,7 +10,7 @@ Purpose: Replace monolithic manager with modular architecture
 """
 
 __version__ = "2.0.0"
-__author__ = "AugmentAI - Modular Refactoring"
+__author__ = "Zazzles's Agent - Modular Refactoring"
 
 # Core modules
 from .embedding_engine import EmbeddingEngine

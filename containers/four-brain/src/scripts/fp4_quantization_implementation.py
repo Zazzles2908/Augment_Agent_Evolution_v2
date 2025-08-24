@@ -8,7 +8,7 @@ This script provides the actual implementation of FP4 quantization using:
 2. TensorRT optimization for inference acceleration
 3. Memory-efficient loading for concurrent model operation
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-01-08
 Hardware: RTX 5070 Ti Blackwell (16GB, sm_120)
 """

@@ -3,7 +3,7 @@
 API Transparency Endpoints for Four-Brain System
 Honest capability reporting and dependency monitoring for all Brain services
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Provide transparent API endpoints that honestly report service capabilities and dependencies
 """

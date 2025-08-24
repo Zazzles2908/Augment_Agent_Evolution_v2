@@ -3,7 +3,7 @@ Brain 1 FastAPI Service
 Main FastAPI application for Brain 1 embedding service.
 
 Created: 2025-07-16 AEST
-Author: Augment Agent Evolution - Brain Architecture Standardization
+Author: Zazzles's Agent - Brain Architecture Standardization
 """
 
 import asyncio

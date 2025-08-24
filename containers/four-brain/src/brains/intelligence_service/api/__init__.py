@@ -1,6 +1,6 @@
 """
 Brain 3 API Module
-API components for Augment Agent integration
+API components for Zazzles's Agent integration
 """
 
 from .endpoints import router

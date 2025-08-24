@@ -70,7 +70,7 @@ class BrainType(Enum):
     """Standardized brain identifiers"""
     BRAIN1_EMBEDDING = "brain1-embedding"
     BRAIN2_RERANKER = "brain2-reranker"
-    BRAIN3_AUGMENT = "brain3-augment"
+    BRAIN3_AUGMENT = "brain3-Zazzles's Agent"
     BRAIN4_DOCLING = "brain4-docling"
     K2_HUB = "k2-hub"
 
@@ -205,7 +205,7 @@ class StandardizedBrainCommunicator:
     
     async def send_to_brain3(self, message_type: MessageType, payload: Dict[str, Any], 
                             correlation_id: Optional[str] = None) -> str:
-        """Send message to Brain-3 (Augment Intelligence)"""
+        """Send message to Brain-3 (Zazzles's Agent Intelligence)"""
         return await self.send_message(
             BrainType.BRAIN3_AUGMENT.value, message_type, payload, correlation_id
         )

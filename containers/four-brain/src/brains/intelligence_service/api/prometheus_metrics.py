@@ -1,5 +1,5 @@
 """
-Prometheus-compatible metrics endpoint for Brain 3 Augment
+Prometheus-compatible metrics endpoint for Brain 3 Zazzles's Agent
 Provides metrics in Prometheus format for Alloy collection
 """
 

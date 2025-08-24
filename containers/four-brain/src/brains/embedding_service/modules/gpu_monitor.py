@@ -3,7 +3,7 @@ GPU Monitoring Module for RTX 5070 Ti Four-Brain System
 Implements comprehensive GPU metrics collection and Prometheus integration
 
 Created: 2025-08-04 AEST
-Author: AugmentAI - Four-Brain Architecture Monitoring
+Author: Zazzles's Agent - Four-Brain Architecture Monitoring
 """
 
 import logging

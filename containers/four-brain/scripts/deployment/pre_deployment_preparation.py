@@ -3,7 +3,7 @@
 Pre-Deployment Preparation Script
 Comprehensive system preparation and validation before Docker deployment
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Fix critical issues identified in pre-deployment audit
 """

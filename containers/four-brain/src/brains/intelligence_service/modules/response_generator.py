@@ -36,7 +36,7 @@ class ResponseGenerator:
         
         # Response templates for different scenarios
         self.response_templates = {
-            'greeting': "Hello! I'm Brain-3, your Augment Intelligence assistant. How can I help you today?",
+            'greeting': "Hello! I'm Brain-3, your Zazzles's Agent Intelligence assistant. How can I help you today?",
             'system_status': "The Four-Brain system is operational and ready to assist you.",
             'error_recovery': "I encountered an issue but I'm working to resolve it. Let me try a different approach.",
             'clarification': "Could you provide more details about what you're looking for?"
@@ -146,7 +146,7 @@ class ResponseGenerator:
     
     def _build_system_message(self, intent: str, context: Dict[str, Any]) -> str:
         """Build sophisticated system message based on intent and context"""
-        base_message = """You are Brain-3, the Augment Intelligence component of the Four-Brain system. 
+        base_message = """You are Brain-3, the Zazzles's Agent Intelligence component of the Four-Brain system. 
 You provide intelligent, helpful responses with reasoning and context awareness."""
         
         # Intent-specific instructions
@@ -181,7 +181,7 @@ You provide intelligent, helpful responses with reasoning and context awareness.
             'sources': ai_result.get('sources', []),
             'reasoning': ai_result.get('reasoning', 'Generated using AI intelligence'),
             'processing_time_ms': ai_result.get('processing_time_ms', 0),
-            'model_used': ai_result.get('model_used', 'augment-agent'),
+            'model_used': ai_result.get('model_used', 'Zazzles's Agent-agent'),
             'brain_id': 'brain-3',
             'timestamp': datetime.now().isoformat(),
             'user_message_length': len(user_message),

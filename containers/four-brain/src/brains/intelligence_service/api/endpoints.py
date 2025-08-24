@@ -1,6 +1,6 @@
 """
 Brain 3 FastAPI Endpoints
-API endpoints for Augment Agent Integration service
+API endpoints for Zazzles's Agent Integration service
 """
 
 import time
@@ -24,7 +24,7 @@ from .models import (
 logger = logging.getLogger(__name__)
 
 # Create router
-router = APIRouter(prefix="/brain3", tags=["Brain 3 - Augment Agent"])
+router = APIRouter(prefix="/brain3", tags=["Brain 3 - Zazzles's Agent"])
 
 # Global Brain 3 manager instance
 brain3_manager: Brain3Manager = None
@@ -98,14 +98,14 @@ async def process_augment_request(
     manager: Brain3Manager = Depends(get_brain3_manager)
 ):
     """
-    Process Augment Agent request
+    Process Zazzles's Agent request
     
     This is the main functionality endpoint for Brain 3.
-    Handles various types of Augment Agent tasks including conversation,
+    Handles various types of Zazzles's Agent tasks including conversation,
     task management, code generation, and workflow orchestration.
     """
     try:
-        logger.info(f"🔄 Augment Agent request: {request.task_type}")
+        logger.info(f"🔄 Zazzles's Agent request: {request.task_type}")
         
         # Validate agent is initialized
         if not manager.agent_initialized:
@@ -138,7 +138,7 @@ async def process_augment_request(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Augment Agent processing failed: {e}")
+        logger.error(f"❌ Zazzles's Agent processing failed: {e}")
         raise HTTPException(status_code=500, detail=f"Processing failed: {str(e)}")
 
 
@@ -150,7 +150,7 @@ async def process_conversation(
     """
     Process conversation request
     
-    Specialized endpoint for conversation-based interactions with Augment Agent.
+    Specialized endpoint for conversation-based interactions with Zazzles's Agent.
     Stores conversations in Supabase if connected.
     """
     try:
@@ -199,7 +199,7 @@ async def manage_task(
     """
     Task management endpoint
     
-    Handles task creation, updates, and management through Augment Agent.
+    Handles task creation, updates, and management through Zazzles's Agent.
     """
     try:
         logger.info(f"📋 Task management request: {request.action}")
@@ -253,7 +253,7 @@ async def orchestrate_workflow(
     """
     Workflow orchestration endpoint
     
-    Handles complex workflow orchestration through Augment Agent.
+    Handles complex workflow orchestration through Zazzles's Agent.
     """
     try:
         logger.info(f"🔄 Workflow orchestration: {len(request.steps)} steps")
@@ -303,7 +303,7 @@ async def get_metrics(manager: Brain3Manager = Depends(get_brain3_manager)):
         status = manager.get_status()
         
         # Simple metrics in Prometheus format
-        metrics = f"""# HELP brain3_requests_total Total number of Augment Agent requests
+        metrics = f"""# HELP brain3_requests_total Total number of Zazzles's Agent requests
 # TYPE brain3_requests_total counter
 brain3_requests_total {status.get('total_requests', 0)}
 

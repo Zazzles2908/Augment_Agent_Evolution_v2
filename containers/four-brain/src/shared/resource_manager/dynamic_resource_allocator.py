@@ -3,7 +3,7 @@
 Dynamic Resource Allocator for Four-Brain System
 Intelligent resource allocation based on available compute and workload demands
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Dynamic allocation of GPU memory, CPU cores, and compute resources for optimal performance
 """

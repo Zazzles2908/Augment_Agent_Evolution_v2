@@ -1,6 +1,6 @@
 # Four-Brain System Driver Update Automation
 # Optimized for AMD Ryzen 7 7700X + MSI RTX 5070 Ti Gaming Trio OC Plus
-# (AugmentAI) Driver Update Script
+# (Zazzles's Agent) Driver Update Script
 
 param(
     [switch]$DownloadOnly,

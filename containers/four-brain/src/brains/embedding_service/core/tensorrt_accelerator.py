@@ -3,7 +3,7 @@
 Brain-1 TensorRT FP4 Accelerator Integration
 Integrates TensorRT FP4 acceleration into Qwen3-4B Embedding service with 8-bit fallback
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Accelerate Brain-1 embedding generation with TensorRT FP4 optimization
 """

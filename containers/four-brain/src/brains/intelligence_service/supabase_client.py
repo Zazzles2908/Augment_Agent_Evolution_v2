@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Supabase Client Helper for Brain-3 Augment
+Supabase Client Helper for Brain-3 Zazzles's Agent
 Provides functions to connect to Postgres and manage agentic_memory table
 
 This module provides helper functions for Brain-3 to interact with the Supabase

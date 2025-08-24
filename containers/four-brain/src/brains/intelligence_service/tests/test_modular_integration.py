@@ -174,7 +174,7 @@ class TestModularIntegration:
                 # Verify it's not the old hardcoded patterns
                 old_patterns = [
                     "✅ Yes! The Four-Brain system is working",
-                    "Hello! I'm Brain-3, the Augment Intelligence component",
+                    "Hello! I'm Brain-3, the Zazzles's Agent Intelligence component",
                     "Test successful! Brain-3 is operational"
                 ]
                 for pattern in old_patterns:

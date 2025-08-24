@@ -4,7 +4,7 @@ Brain1 Standardization Test
 Quick validation script to test the new standardized structure.
 
 Created: 2025-07-13 AEST
-Author: Augment Agent Evolution - Brain Architecture Standardization
+Author: Zazzles's Agent - Brain Architecture Standardization
 """
 
 import sys

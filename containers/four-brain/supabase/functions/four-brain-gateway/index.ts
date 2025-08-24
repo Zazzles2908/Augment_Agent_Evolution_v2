@@ -42,7 +42,7 @@ const routeMapping = {
   '/chat': {
     method: 'POST',
     endpoint: '/api/v1/chat-enhance',
-    description: 'Enhanced chat interaction with Brain-3 (Augment Intelligence)'
+    description: 'Enhanced chat interaction with Brain-3 (Zazzles's Agent Intelligence)'
   },
   '/search': {
     method: 'POST', 

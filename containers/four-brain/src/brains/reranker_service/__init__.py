@@ -28,7 +28,7 @@ from .model_handler import Qwen3RerankerHandler
 from .task_processor import Brain2TaskProcessor
 
 __version__ = "1.0.0"
-__author__ = "Augment Agent"
+__author__ = "Zazzles's Agent"
 __description__ = "Brain 2 (Qwen3-Reranker-4B) for Four-Brain Architecture"
 
 # Export main components

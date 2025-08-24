@@ -3,7 +3,7 @@
 Advanced Optimizations for Four-Brain System
 Flash-Attention 2, CUDA Graphs, and Kernel Fusion optimizations
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Advanced GPU optimizations for maximum performance
 """

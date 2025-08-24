@@ -17,7 +17,7 @@ from .brain_communicator import (
 )
 
 __version__ = "1.0.0"
-__author__ = "Augment Agent"
+__author__ = "Zazzles's Agent"
 __description__ = "Brain 2 Redis Communication Module"
 
 # Export main components

@@ -6,11 +6,11 @@ This module provides embedding generation capabilities using Qwen3-4B model
 with optimized performance and container-native storage.
 
 Created: 2025-07-13 AEST
-Author: Augment Agent Evolution - Brain Architecture Standardization
+Author: Zazzles's Agent - Brain Architecture Standardization
 """
 
 __version__ = "1.0.0"
-__author__ = "Augment Agent Evolution"
+__author__ = "Zazzles's Agent"
 
 # Core imports (modular Brain1Manager)
 from .embedding_manager import Brain1Manager

@@ -1,7 +1,7 @@
 # Zen MCP Validation and Improvement Report
 
 Date: 2025-08-23
-Author: Augment Agent
+Author: Zazzles's Agent
 Branch/PR: chore/zen-mcp-v2-robustness-doc-tweaks (#5)
 
 ## Overview
@@ -10,7 +10,7 @@ Using the innate `zen` tools from this chat, I validated the MCP server and appl
 ## Environment
 - Client MCP entry: zen-mcp-server/.zen_venv/Scripts/python.exe + zen-mcp-server/server.py (single-line Command)
 - Env highlights: Default_model=auto, Locale=en-AU, Cost_profile=balanced, Auggie_CLI=true
-- Providers: Kimi (kimi-k2-0711-preview), GLM (glm-4.5-air)
+- Providers: Kimi (kimi-k2-0711-preview), GLM (glm-4.5-air); OpenRouter optional; Custom optional
 
 ## Probes and Outcomes
 
@@ -73,6 +73,9 @@ provider_types = [ProviderType.KIMI, ProviderType.GLM, ProviderType.GOOGLE, Prov
 
 ## Result
 - Tools loaded: 16 (chat, analyze, planner, thinkdeep, listmodels, version, challenge, codereview, consensus, debug, docgen, precommit, refactor, tracer, testgen, secaudit)
+- Provider set cleaned: removed Gemini/OpenAI/XAI/DIAL references and files; listmodels surfaces only Kimi/GLM
+- Logging simplified: wrapper_error.log for pre-boot errors; mcp_server.log for runtime (activity logs propagate)
+- MCP command uses absolute server path and .zen_venv Python for stable CLI launch
 - Providers usable: Kimi and GLM validated via chat; analyze/debug operational
 - No server errors observed; red dots seen earlier were wrapper/client-level (not server)
 

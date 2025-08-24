@@ -154,7 +154,7 @@ class FlowMonitor:
             FlowType.CHAT_INTERACTION: {
                 'expected_steps': ['authentication', 'query_processing', 'brain_routing', 'response_generation'],
                 'max_duration_ms': 30000,  # 30 seconds
-                'required_components': ['k2-hub', 'brain3-augment', 'redis']
+                'required_components': ['k2-hub', 'brain3-Zazzles's Agent', 'redis']
             },
             FlowType.BRAIN_COMMUNICATION: {
                 'expected_steps': ['message_send', 'routing', 'processing', 'response'],

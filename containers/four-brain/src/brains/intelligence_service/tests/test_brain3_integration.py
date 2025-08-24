@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 Brain 3 Integration Tests - ZERO FABRICATION ENFORCED
-Comprehensive testing for Augment Agent integration
+Comprehensive testing for Zazzles's Agent integration
 
 This module tests real Brain 3 functionality including:
-- Augment Agent initialization
+- Zazzles's Agent initialization
 - Supabase integration
 - Redis communication
 - API endpoints

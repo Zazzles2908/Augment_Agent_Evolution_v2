@@ -1,6 +1,6 @@
 """
 Brain 3 Communication Module
-Inter-brain communication components for Augment Agent integration
+Inter-brain communication components for Zazzles's Agent integration
 """
 
 from .brain_communicator import BrainCommunicator

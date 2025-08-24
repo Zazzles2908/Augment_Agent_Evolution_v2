@@ -3,7 +3,7 @@ Brain1 Configuration Settings
 Configuration for Qwen3-4B Embedding deployment with RTX 5070 Ti optimization
 
 Created: 2025-07-13 AEST
-Author: Augment Agent Evolution - Brain Architecture Standardization
+Author: Zazzles's Agent - Brain Architecture Standardization
 """
 
 import os

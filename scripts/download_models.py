@@ -203,7 +203,7 @@ def main():
         logger.info("\n🔧 QWEN3/Docling Four-Brain System Ready:")
         logger.info("   ✅ Brain 1: Qwen3-Embedding-8B (official model, NVFP4 quantization)")
         logger.info("   ✅ Brain 2: Qwen3-Reranker-8B (official model, NVFP4 quantization)")
-        logger.info("   ✅ Brain 3: Intelligence (Augment) Service")
+        logger.info("   ✅ Brain 3: Intelligence (Zazzles's Agent) Service")
         logger.info("   ✅ Brain 4: Docling document processing models")
         logger.info("   ✅ All models verified and ready for TensorRT optimization")
         logger.info("   🔄 Use pre-trained checkpoints for fine-tuning")

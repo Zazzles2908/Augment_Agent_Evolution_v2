@@ -4,7 +4,7 @@ RTX 5070 Ti Memory Optimizer
 Optimized memory management for 16GB GDDR7 with TensorRT FP4
 
 Created: 2025-08-04 AEST
-Author: AugmentAI - RTX 5070 Ti Optimization
+Author: Zazzles's Agent - RTX 5070 Ti Optimization
 """
 
 import os

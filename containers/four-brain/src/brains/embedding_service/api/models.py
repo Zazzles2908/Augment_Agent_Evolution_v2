@@ -3,7 +3,7 @@ Brain1 API Models
 Pydantic models for API request/response validation.
 
 Created: 2025-07-13 AEST
-Author: Augment Agent Evolution - Brain Architecture Standardization
+Author: Zazzles's Agent - Brain Architecture Standardization
 """
 
 from pydantic import BaseModel, Field, ConfigDict

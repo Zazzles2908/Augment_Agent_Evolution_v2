@@ -1,6 +1,6 @@
 """
 Config Manager Module - API Configuration Management
-Manages Augment Agent API configuration and settings
+Manages Zazzles's Agent API configuration and settings
 
 This module handles all configuration management for the AI interface,
 including API keys, endpoints, and performance settings.
@@ -24,7 +24,7 @@ class ConfigManager:
     """
     Configuration Manager for Brain-3 AI Integration
     
-    Manages all configuration settings for the Augment Agent API
+    Manages all configuration settings for the Zazzles's Agent API
     and Brain-3 operational parameters.
     """
     
