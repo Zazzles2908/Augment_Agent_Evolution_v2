@@ -3,7 +3,7 @@ Fallback Handler Module - Graceful Degradation
 Handles API failures and provides intelligent fallback responses
 
 This module ensures Brain-3 continues to function even when the
-Augment Agent API is unavailable, providing graceful degradation.
+Zazzles's Agent API is unavailable, providing graceful degradation.
 
 Created: 2025-07-29 AEST
 Purpose: Provide graceful degradation when AI API unavailable
@@ -147,7 +147,7 @@ class FallbackHandler:
     async def _handle_greeting_fallback(self, user_message: str, context: Dict[str, Any]) -> Dict[str, Any]:
         """Handle greeting with intelligent fallback"""
         return {
-            'response': "Hello! I'm Brain-3, your Augment Intelligence assistant. I'm currently operating in fallback mode due to temporary connectivity issues, but I'm still here to help you as best I can.",
+            'response': "Hello! I'm Brain-3, your Zazzles's Agent Intelligence assistant. I'm currently operating in fallback mode due to temporary connectivity issues, but I'm still here to help you as best I can.",
             'sources': [{'type': 'fallback_greeting', 'title': 'Graceful Greeting', 'confidence': 0.7}],
             'reasoning': 'Providing friendly greeting despite API unavailability'
         }

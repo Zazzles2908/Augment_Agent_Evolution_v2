@@ -4,7 +4,7 @@ Redis Performance Monitor for Four-Brain System
 Real-time monitoring and optimization for Redis Streams communication
 
 Created: 2025-07-27 AEST
-Author: AugmentAI - Redis Performance Optimization
+Author: Zazzles's Agent - Redis Performance Optimization
 """
 
 import redis

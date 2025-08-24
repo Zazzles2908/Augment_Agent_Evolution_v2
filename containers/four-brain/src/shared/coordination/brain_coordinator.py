@@ -24,7 +24,7 @@ class BrainType(Enum):
     """Types of AI brains in the system"""
     EMBEDDING = "embedding"  # Brain1 - Qwen3-4B Embedding
     RERANKER = "reranker"    # Brain2 - Qwen3-Reranker-4B
-    AUGMENT = "augment"      # Brain3 - Augment Agent API
+    Zazzles's Agent = "Zazzles's Agent"      # Brain3 - Zazzles's Agent API
     DOCLING = "docling"      # Brain4 - Docling PDF processing
 
 class BrainStatus(Enum):
@@ -316,8 +316,8 @@ class BrainCoordinator:
             return brain.brain_type == BrainType.EMBEDDING
         elif task_type in ['rerank', 'ranking', 'score']:
             return brain.brain_type == BrainType.RERANKER
-        elif task_type in ['chat', 'completion', 'augment']:
-            return brain.brain_type == BrainType.AUGMENT
+        elif task_type in ['chat', 'completion', 'Zazzles's Agent']:
+            return brain.brain_type == BrainType.Zazzles's Agent
         elif task_type in ['pdf', 'document', 'docling']:
             return brain.brain_type == BrainType.DOCLING
         else:
@@ -394,7 +394,7 @@ class BrainCoordinator:
                         'processing_time': 0.05
                     }
                 }
-            elif brain.brain_type == BrainType.AUGMENT and task.task_type == 'chat':
+            elif brain.brain_type == BrainType.Zazzles's Agent and task.task_type == 'chat':
                 return {
                     'success': True,
                     'data': {

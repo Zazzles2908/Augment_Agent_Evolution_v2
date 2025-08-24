@@ -2,7 +2,7 @@
 
 GPU (16GB)
 - GLM-4.5 Air (NVFP4): ~12GB
-- Qwen3-4B Embedding (NVFP4): ~1GB
+- Qwen3-4B Embedding (FP8): ~2–4GB (varies by kernel/sequence length)
 - Qwen3-0.6B Reranker (NVFP4): ~0.15GB
 - Triton overhead: ~0.5GB
 - Buffer: ~2.35GB

@@ -1,6 +1,6 @@
 """
 Brain-3 Modular Components
-Modular architecture for Brain-3 Augment Intelligence
+Modular architecture for Brain-3 Zazzles's Agent Intelligence
 
 This package contains modular components that replace the monolithic
 brain3_manager.py with focused, testable modules.
@@ -10,7 +10,7 @@ Purpose: Replace hardcoded AI responses with real intelligence
 """
 
 __version__ = "1.0.0"
-__author__ = "AugmentAI - Modular Refactoring"
+__author__ = "Zazzles's Agent - Modular Refactoring"
 
 # Core modules
 from .ai_interface import AIInterface

@@ -3,7 +3,7 @@ Brain1 API Endpoints
 REST API endpoints for embedding generation and management.
 
 Created: 2025-07-13 AEST
-Author: Augment Agent Evolution - Brain Architecture Standardization
+Author: Zazzles's Agent - Brain Architecture Standardization
 """
 
 from fastapi import APIRouter, HTTPException, Depends

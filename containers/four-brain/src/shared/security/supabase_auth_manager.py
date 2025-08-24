@@ -3,7 +3,7 @@
 Supabase Production Authentication Manager for Four-Brain System
 Production-ready Supabase security with RLS, JWT validation, and monitoring
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Secure Supabase connections with production authentication
 """

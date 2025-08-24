@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Agentic Loop for Brain-3 Augment with qwen-code CLI Integration
+Agentic Loop for Brain-3 Zazzles's Agent with qwen-code CLI Integration
 Implements Redis Streams processing with Kimi K2 model via qwen-code CLI
 
 This module provides the agentic loop for Brain-3, integrating with the qwen-code CLI

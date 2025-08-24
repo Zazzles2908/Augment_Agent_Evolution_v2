@@ -1,5 +1,5 @@
 """
-Prometheus Metrics for Brain 3 - Augment Coordinator Service
+Prometheus Metrics for Brain 3 - Zazzles's Agent Coordinator Service
 Date: 2025-07-19 AEST
 Purpose: Custom metrics for Supabase Edge Functions, workflow coordination, and inter-brain communication
 """
@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Brain3Metrics:
-    """Prometheus metrics collector for Brain 3 augment coordinator service"""
+    """Prometheus metrics collector for Brain 3 Zazzles's Agent coordinator service"""
     
     def __init__(self):
         # Create custom registry for Brain 3

@@ -4,7 +4,7 @@ Four-Brain System Alerting
 Intelligent alerting system for Four-Brain architecture
 
 Created: 2025-07-27 AEST
-Author: AugmentAI - Alerting Implementation
+Author: Zazzles's Agent - Alerting Implementation
 """
 
 import asyncio

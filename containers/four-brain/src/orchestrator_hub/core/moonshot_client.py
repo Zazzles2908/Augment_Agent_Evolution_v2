@@ -88,7 +88,7 @@ class MoonshotClient:
 
 Brain 1 (Embedding): Converts text to vectors using Qwen3-4B
 Brain 2 (Reranker): Scores and ranks document relevance using Qwen3-Reranker-4B  
-Brain 3 (Augment): Orchestrates and manages the overall workflow
+Brain 3 (Zazzles's Agent): Orchestrates and manages the overall workflow
 Brain 4 (Docling): Processes documents and PDFs into text
 
 For each user question, decide the optimal allocation percentages that sum to 100%.

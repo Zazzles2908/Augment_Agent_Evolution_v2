@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Loki MCP Server Runner for Augment AI
+Loki MCP Server Runner for Zazzles's Agent AI
 Connects to local Loki instance for Four-Brain log monitoring
 """
 

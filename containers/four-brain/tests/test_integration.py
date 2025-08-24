@@ -92,7 +92,7 @@ class TestFourBrainIntegration:
         brain3_result = verifier.verify_model("brain3")
         
         # Brain-3 should pass (API-based, no local requirements)
-        assert brain3_result.model_name == "Brain-3 Augment"
+        assert brain3_result.model_name == "Brain-3 Zazzles's Agent"
         assert len(brain3_result.errors) == 0
         
         print("✅ Individual model verification passed")

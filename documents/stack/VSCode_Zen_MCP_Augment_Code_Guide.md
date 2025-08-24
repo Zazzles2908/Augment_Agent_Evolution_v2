@@ -1,4 +1,4 @@
-# VS Code + Zen MCP: Best‑Practice Setup for Augment Code
+# VS Code + Zen MCP: Best‑Practice Setup for Zazzles's Agent
 
 Goal: Fast startup, reliable MCP wiring, easy tool prompts (/zen:chat, planner, codereview, precommit), safe‑by‑default execution, and a single place for the Master Prompt so every session starts right.
 
@@ -11,7 +11,7 @@ Goal: Fast startup, reliable MCP wiring, easy tool prompts (/zen:chat, planner, 
 - Run zen MCP setup once (creates venv and .env):
   - PowerShell: `./zen-mcp-server/run-server.ps1`
   - Optional: `./zen-mcp-server/run-server.ps1 -Config` to print client config hints
-- Ensure `.env` has at least one valid API provider or CUSTOM_API_URL for a local model.
+- Ensure `.env` has at least one valid provider key: KIMI_API_KEY or GLM_API_KEY (or OPENROUTER_API_KEY / CUSTOM_API_URL if you prefer those).
 - Decide launch mode:
   - Python venv (recommended for VS Code): `zen-mcp-server/.zen_venv/` + `server.py`
   - Docker-run (portable): prebuild `zen-mcp-server:latest` or let compose build it
@@ -90,11 +90,11 @@ Restart the VS Code window after editing.
 Path: `.vscode/settings.json` in your repo. These keys are conventions for you/your tooling to read; VS Code itself won’t enforce them.
 ```json
 {
-  "augment.masterPromptPath": "${workspaceFolder}/documents/stack/Augment_Code_Master_Guidelines_v2.md",
-  "augment.mode": "Auto",
-  "augment.safeByDefault": true,
-  "augment.maxRuntimeMinutes": 10,
-  "augment.consultationModel": "auto"
+  "Zazzles's Agent.masterPromptPath": "${workspaceFolder}/documents/stack/Augment_Code_Master_Guidelines_v2.md",
+  "Zazzles's Agent.mode": "Auto",
+  "Zazzles's Agent.safeByDefault": true,
+  "Zazzles's Agent.maxRuntimeMinutes": 10,
+  "Zazzles's Agent.consultationModel": "auto"
 }
 ```
 Tip: Keep the Master Prompt under version control. When you update it, append a note to CHANGES.md.
@@ -120,7 +120,7 @@ Tip: Keep the Master Prompt under version control. When you update it, append a 
 - PR
 - `zen-mcp-server/.env` (v2 recommended entries; server reads these):
 ```
-DEFAULT_MODEL=auto
+DEFAULT_MODEL=glm-4.5-flash
 LOCALE=en-AU
 LOG_LEVEL=INFO
 # Choose ONE provider path below:
@@ -140,6 +140,8 @@ DEFAULT_THINKING_MODE_THINKDEEP=high
 
 
 ## 10) Using Auggie CLI with Zen MCP
+
+See also: documents/stack/Auggie_CLI_Terminal_Defaults_Guide.md for setting GPT‑5 as the terminal default orchestrator (PowerShell profile or cross-shell wrapper).
 Auggie wrappers are already integrated in the server. To enable CLI-optimized tools (aug_chat, aug_thinkdeep, aug_consensus):
 
 1. Ensure your `.env` has:
@@ -170,8 +172,8 @@ AUGGIE_CONFIG=C:/Project/Augment_Agent_Evolution_v2/zen-mcp-server/auggie-config
   - `/zen:listmodels Use zen to list available models`
   - `/zen:version What version of zen do I have`
 - Start with the Master Prompt:
-  - `Load and follow the Master Prompt at ${augment.masterPromptPath}. Mode: ${config:augment.mode}. Begin with planner to implement <task>.`
-- If models are missing: check .env provider keys (KIMI_API_KEY/GLM_API_KEY, or OPENROUTER_API_KEY/DIAL_API_KEY, or CUSTOM_API_URL/CUSTOM_MODEL_NAME)
+  - `Load and follow the Master Prompt at ${Zazzles's Agent.masterPromptPath}. Mode: ${config:Zazzles's Agent.mode}. Begin with planner to implement <task>.`
+- If models are missing: check .env provider keys (KIMI_API_KEY/GLM_API_KEY, or OPENROUTER_API_KEY, or CUSTOM_API_URL/CUSTOM_MODEL_NAME)
 - If locale isn’t applied, confirm LOCALE=en-AU is set in .env
 
   - Summarize changes + risks; open PR with clear title and checklist.
@@ -185,7 +187,7 @@ Common quick prompts
 Prefer compact, actionable outputs by default. Configure on the server side:
 - `zen-mcp-server/.env` – set these (examples):
 ```
-DEFAULT_MODEL=auto
+DEFAULT_MODEL=glm-4.5-flash
 LOG_LEVEL=INFO
 DEFAULT_THINKING_MODE_THINKDEEP=high
 ```
@@ -211,8 +213,8 @@ Client tips
 
 ## 8) Master Prompt Placement
 - Keep the canonical policy at: `documents/stack/Augment_Code_Master_Guidelines_v2.md`.
-- Store its path in Workspace settings under `augment.masterPromptPath` so you (and scripts) can reference it.
-- When starting a new thread, you can instruct your agent: “Load and follow the Master Prompt at ${augment.masterPromptPath}.”
+- Store its path in Workspace settings under `Zazzles's Agent.masterPromptPath` so you (and scripts) can reference it.
+- When starting a new thread, you can instruct your agent: “Load and follow the Master Prompt at ${Zazzles's Agent.masterPromptPath}.”
 
 —
 This guide aligns with the Zen MCP prompt syntax and the client integration patterns used by the setup scripts. Keep iterating on Workspace settings to match your team’s defaults and budget.

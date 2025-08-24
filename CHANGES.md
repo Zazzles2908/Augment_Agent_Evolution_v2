@@ -23,12 +23,12 @@
 
 2025-08-23-1730: Add VS Code + Zen MCP integration guide and Master Prompt (v2)
 - Added documents/stack/VSCode_Zen_MCP_Augment_Code_Guide.md
-- Drafted and approved Augment Code – Master Prompt and Operating Guidelines (v2)
-- Next: Wire augment.masterPromptPath into workspace .vscode/settings.json and verify MCP tool prompts
+- Drafted and approved Zazzles's Agent – Master Prompt and Operating Guidelines (v2)
+- Next: Wire Zazzles's Agent.masterPromptPath into workspace .vscode/settings.json and verify MCP tool prompts
 
 2025-08-23-1735: Workspace settings wired to Master Prompt and Zen MCP
 - Created documents/stack/Augment_Code_Master_Guidelines_v2.md
-- Updated .vscode/settings.json with MCP server and augment.* keys
+- Updated .vscode/settings.json with MCP server and Zazzles's Agent.* keys
 - Next: Restart VS Code to activate MCP and test /zen:listmodels
 
 2025-08-23-1835: VS Code guide – single-line Command field clarification

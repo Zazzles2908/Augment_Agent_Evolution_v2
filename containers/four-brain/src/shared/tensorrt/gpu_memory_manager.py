@@ -3,7 +3,7 @@
 GPU Memory Management for Four-Brain TensorRT System
 Dynamic GPU memory allocation with TensorRT engine caching for RTX 5070 Ti Blackwell
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Manage GPU memory allocation across Brain services with TensorRT optimization
 """

@@ -3,7 +3,7 @@
 Redis Authentication Manager for Four-Brain System
 Production-ready Redis security with authentication and encryption
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Secure Redis connections with authentication and monitoring
 """

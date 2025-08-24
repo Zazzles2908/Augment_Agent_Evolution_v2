@@ -155,7 +155,7 @@ class DynamicResourceAllocator:
                 "priority_weight": 1.1
             },
             "brain3": {
-                "typical_gpu_memory_mb": 2048,  # 2GB for augment
+                "typical_gpu_memory_mb": 2048,  # 2GB for Zazzles's Agent
                 "typical_cpu_cores": 1.0,
                 "typical_system_memory_mb": 3072,  # 3GB
                 "peak_multiplier": 1.2,

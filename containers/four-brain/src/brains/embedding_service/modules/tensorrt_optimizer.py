@@ -3,7 +3,7 @@ TensorRT FP4 Optimizer for RTX 5070 Ti Blackwell Architecture
 Implements TensorRT FP4 quantization and engine caching for maximum performance
 
 Created: 2025-08-04 AEST
-Author: AugmentAI - Four-Brain Architecture Optimization
+Author: Zazzles's Agent - Four-Brain Architecture Optimization
 """
 
 import os

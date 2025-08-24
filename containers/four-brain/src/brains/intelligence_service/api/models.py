@@ -1,6 +1,6 @@
 """
 Brain 3 API Models
-Pydantic models for Augment Agent API endpoints
+Pydantic models for Zazzles's Agent API endpoints
 """
 
 from typing import Dict, List, Any, Optional
@@ -9,7 +9,7 @@ from datetime import datetime
 
 
 class AugmentRequest(BaseModel):
-    """Request model for Augment Agent processing"""
+    """Request model for Zazzles's Agent processing"""
     task_type: str = Field(..., description="Type of task to process")
     conversation: Optional[Dict[str, Any]] = Field(None, description="Conversation data")
     task_data: Optional[Dict[str, Any]] = Field(None, description="Task management data")
@@ -20,7 +20,7 @@ class AugmentRequest(BaseModel):
 
 
 class AugmentResponse(BaseModel):
-    """Response model for Augment Agent processing"""
+    """Response model for Zazzles's Agent processing"""
     result: Dict[str, Any] = Field(..., description="Processing result")
     task_type: str = Field(..., description="Type of task processed")
     processing_time_ms: float = Field(..., description="Processing time in milliseconds")

@@ -4,7 +4,7 @@ Four-Brain AI System Flow Monitoring Utility
 Comprehensive monitoring for inter-brain communication, tool interactions, and system flow
 
 Created: 2025-07-13 20:50 AEST
-Project: Augment Agent Evolution - Phase 7 Four-Brain Production Ready
+Project: Zazzles's Agent - Phase 7 Four-Brain Production Ready
 Purpose: Complete flow monitoring and observability for Four-Brain AI System
 """
 

@@ -26,7 +26,7 @@ class BrainType(Enum):
     """Types of AI brains in the system"""
     EMBEDDING = "embedding"  # Brain1 - Qwen3-4B Embedding
     RERANKER = "reranker"    # Brain2 - Qwen3-Reranker-4B
-    AUGMENT = "augment"      # Brain3 - Augment Agent API
+    Zazzles's Agent = "Zazzles's Agent"      # Brain3 - Zazzles's Agent API
     DOCLING = "docling"      # Brain4 - Docling PDF processing
 
 class DiscoveryMethod(Enum):
@@ -137,7 +137,7 @@ class BrainDiscovery:
                 }
             },
             'intelligence_service': {
-                'type': BrainType.AUGMENT,
+                'type': BrainType.Zazzles's Agent,
                 'host': 'localhost',
                 'port': 8003,
                 'endpoints': {
@@ -386,7 +386,7 @@ class BrainDiscovery:
             endpoints_to_check = [
                 ('/embed', BrainType.EMBEDDING),
                 ('/rerank', BrainType.RERANKER),
-                ('/chat', BrainType.AUGMENT),
+                ('/chat', BrainType.Zazzles's Agent),
                 ('/process', BrainType.DOCLING)
             ]
             
@@ -464,7 +464,7 @@ class BrainDiscovery:
                 capabilities = ['embedding', 'encode', 'vector_search']
             elif brain_type == BrainType.RERANKER:
                 capabilities = ['rerank', 'score', 'ranking']
-            elif brain_type == BrainType.AUGMENT:
+            elif brain_type == BrainType.Zazzles's Agent:
                 capabilities = ['chat', 'completion', 'reasoning']
             elif brain_type == BrainType.DOCLING:
                 capabilities = ['pdf_processing', 'document_parsing', 'markdown_conversion']
@@ -509,7 +509,7 @@ class BrainDiscovery:
                 endpoints.update({'embed': '/embed', 'encode': '/encode'})
             elif brain_type == BrainType.RERANKER:
                 endpoints.update({'rerank': '/rerank', 'score': '/score'})
-            elif brain_type == BrainType.AUGMENT:
+            elif brain_type == BrainType.Zazzles's Agent:
                 endpoints.update({'chat': '/chat', 'completion': '/completion'})
             elif brain_type == BrainType.DOCLING:
                 endpoints.update({'process': '/process', 'convert': '/convert'})

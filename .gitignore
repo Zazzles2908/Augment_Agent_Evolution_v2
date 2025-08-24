@@ -55,6 +55,7 @@ node_modules/
 # (specific ignores below keep secrets/artifacts out)
 # zen-mcp-server
 zen-mcp-server/.zen_venv/
+zen-mcp-server/.zen_venv2/
 zen-mcp-server/logs/
 zen-mcp-server/**/__pycache__/
 zen-mcp-server/**/*.log

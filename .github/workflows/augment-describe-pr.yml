@@ -11,7 +11,7 @@ jobs:
      runs-on: ubuntu-latest
      if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
      steps:
-       - name: Check Augment Secret
+       - name: Check Zazzles's Agent Secret
          run: |
            if [ -z "${{ secrets.AUGMENT_SESSION_AUTH }}" ]; then
              echo "::error::AUGMENT_SESSION_AUTH secret is not set."

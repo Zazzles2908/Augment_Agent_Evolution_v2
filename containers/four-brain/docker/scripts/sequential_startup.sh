@@ -64,7 +64,7 @@ implement_startup_delay() {
             sleep 120
             ;;
         "brain3")
-            log "🧠 Brain3 (Augment) - Waiting 240s for Brain1+Brain2 model loading..."
+            log "🧠 Brain3 (Zazzles's Agent) - Waiting 240s for Brain1+Brain2 model loading..."
             sleep 240
             ;;
         "brain4")

@@ -3,7 +3,7 @@
 Unified TensorRT Integration Module for Four-Brain System
 Provides reusable TensorRT acceleration components with unified API
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Unified TensorRT FP4 acceleration for all Brain services
 """

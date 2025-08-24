@@ -10,7 +10,7 @@ Purpose: Replace monolithic manager with modular architecture following Brain 1/
 """
 
 __version__ = "2.0.0"
-__author__ = "AugmentAI - Modular Refactoring"
+__author__ = "Zazzles's Agent - Modular Refactoring"
 
 # Core modules
 from .document_engine import DocumentEngine

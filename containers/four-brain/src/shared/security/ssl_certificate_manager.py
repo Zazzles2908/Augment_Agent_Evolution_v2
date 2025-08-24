@@ -3,7 +3,7 @@
 SSL Certificate Manager for Four-Brain System
 Production-ready SSL certificate management with Let's Encrypt and monitoring
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Manage SSL certificates for nginx reverse proxy and secure communications
 """

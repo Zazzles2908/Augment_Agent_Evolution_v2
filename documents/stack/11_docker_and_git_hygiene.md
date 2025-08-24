@@ -9,7 +9,7 @@ Docker cleanup (Ubuntu 24.04)
   - ./scripts/env/cleanup_docker.sh
 - Manual commands (equivalent):
   - docker system prune -af --volumes
-  - docker ps -a --format '{{.ID}}\t{{.Names}}' | grep -Ei 'four-brain|orchestrator|embedding|reranker|document|triton' | awk '{print $1}' | xargs -r docker rm -f
+  - docker ps -a --format '{{.ID}}\t{{.Names}}' | grep -Ei 'four-brain|orchestrator|embedding|reranker|document|triton' | awk '{print $1}' | xargs -r docker rm -f && docker image prune -af && docker volume prune -f
 
 Git hygiene
 - Ensure identity (local repo only):
@@ -25,9 +25,9 @@ Git hygiene
 
 Model repository hygiene
 - Keep only config.pbtxt in git; do NOT commit *.onnx/*.plan engines.
-- Current canonical model names in code/scripts:
-  - qwen3_embedding_trt (embedding)
-  - qwen3_reranker_trt (reranker)
+- Current canonical model names in code/scripts (Triton tensorrt_plan):
+  - qwen3_4b_embedding (embedding, FP8; 2000-d)
+  - qwen3_0_6b_reranking (reranker, NVFP4)
   - glm45_air (generation)
 - Remove old HRM directories under containers/four-brain/triton/model_repository/* if present.
 

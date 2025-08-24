@@ -3,7 +3,7 @@ Brain1 Communication Module
 Handles inter-brain communication and messaging.
 
 Created: 2025-07-13 AEST
-Author: Augment Agent Evolution - Brain Architecture Standardization
+Author: Zazzles's Agent - Brain Architecture Standardization
 """
 
 import asyncio
@@ -56,11 +56,11 @@ class BrainCommunicator:
             raise
     
     async def send_to_brain3(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Send data to Brain3 (Augment) for processing."""
+        """Send data to Brain3 (Zazzles's Agent) for processing."""
         try:
             message = {
                 "from": self.brain_id,
-                "to": "brain3-augment",
+                "to": "brain3-Zazzles's Agent",
                 "timestamp": datetime.utcnow().isoformat(),
                 "data": data
             }

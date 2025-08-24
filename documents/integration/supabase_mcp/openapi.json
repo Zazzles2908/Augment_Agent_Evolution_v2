@@ -1,0 +1,86 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "Supabase MCP Connector", "version": "1.0.0" },
+  "paths": {
+    "/vectors/upsert_document_vectors": {
+      "post": {
+        "summary": "Upsert document vectors (2000-d) with metadata",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpsertDocumentVectorsRequest" } } } },
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/vectors/match_documents": {
+      "post": {
+        "summary": "Return top-k similar documents by embedding",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MatchDocumentsRequest" } } } },
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/agents/upsert_message": {
+      "post": {
+        "summary": "Upsert vectorised agent message (2000-d)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpsertAgentMessageRequest" } } } },
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/agents/match_messages": {
+      "post": {
+        "summary": "Return top-k similar agent messages by embedding",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MatchAgentMessagesRequest" } } } },
+        "responses": { "200": { "description": "OK" } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Vector": { "type": "array", "items": { "type": "number", "format": "float" }, "minItems": 2000, "maxItems": 2000 },
+      "DocumentRow": {
+        "type": "object",
+        "properties": {
+          "doc_id": { "type": "string" },
+          "chunk_id": { "type": "string" },
+          "title": { "type": "string" },
+          "text_excerpt": { "type": "string" },
+          "embedding": { "$ref": "#/components/schemas/Vector" },
+          "metadata": { "type": "object", "additionalProperties": true }
+        },
+        "required": ["doc_id", "chunk_id", "text_excerpt", "embedding"]
+      },
+      "UpsertDocumentVectorsRequest": {
+        "type": "object",
+        "properties": { "rows": { "type": "array", "items": { "$ref": "#/components/schemas/DocumentRow" } } },
+        "required": ["rows"]
+      },
+      "MatchDocumentsRequest": {
+        "type": "object",
+        "properties": {
+          "query_embedding": { "$ref": "#/components/schemas/Vector" },
+          "match_count": { "type": "integer", "minimum": 1, "default": 10 },
+          "similarity_threshold": { "type": "number", "default": 0.3 }
+        },
+        "required": ["query_embedding"]
+      },
+      "UpsertAgentMessageRequest": {
+        "type": "object",
+        "properties": {
+          "agent_id": { "type": "string" },
+          "role": { "type": "string" },
+          "content": { "type": "string" },
+          "embedding": { "$ref": "#/components/schemas/Vector" },
+          "metadata": { "type": "object", "additionalProperties": true }
+        },
+        "required": ["agent_id", "role", "content", "embedding"]
+      },
+      "MatchAgentMessagesRequest": {
+        "type": "object",
+        "properties": {
+          "query_embedding": { "$ref": "#/components/schemas/Vector" },
+          "match_count": { "type": "integer", "minimum": 1, "default": 10 },
+          "similarity_threshold": { "type": "number", "default": 0.3 }
+        },
+        "required": ["query_embedding"]
+      }
+    }
+  }
+}
+

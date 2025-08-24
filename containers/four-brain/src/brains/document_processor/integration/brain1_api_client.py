@@ -4,7 +4,7 @@ Brain 1 API Client for Brain 4 Integration
 This module provides an HTTP client for Brain 4 to communicate with Brain 1's
 embedding service, eliminating the need for duplicate model loading.
 
-Author: Augment Agent
+Author: Zazzles's Agent
 Date: 2025-07-16
 Purpose: Resolve Brain-1 performance issue by eliminating duplicate model loading
 """

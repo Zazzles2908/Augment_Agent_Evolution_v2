@@ -3,7 +3,7 @@
 Brain-4 TensorRT Accelerator Integration
 Integrates TensorRT optimization into Docling document processing service
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Accelerate Brain-4 document processing with TensorRT optimization
 """

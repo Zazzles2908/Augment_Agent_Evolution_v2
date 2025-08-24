@@ -3,7 +3,7 @@
 TensorRT Engine Cache Manager for Four-Brain System
 Pre-build once, reuse forever - Intelligent TensorRT engine caching and management
 
-Author: AugmentAI
+Author: Zazzles's Agent
 Date: 2025-08-02
 Purpose: Eliminate TensorRT compilation overhead through intelligent engine caching
 """

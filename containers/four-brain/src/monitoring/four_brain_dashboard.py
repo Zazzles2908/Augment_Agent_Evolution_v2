@@ -4,7 +4,7 @@ Four-Brain System Real-Time Dashboard
 Comprehensive monitoring dashboard for Four-Brain architecture
 
 Created: 2025-07-27 AEST
-Author: AugmentAI - Monitoring Implementation
+Author: Zazzles's Agent - Monitoring Implementation
 """
 
 import asyncio

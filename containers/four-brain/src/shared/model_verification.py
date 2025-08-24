@@ -85,7 +85,7 @@ class ModelVerificationSystem:
                 vram_usage_4bit=2.0
             ),
             "brain3": ModelSpec(
-                name="Brain-3 Augment",
+                name="Brain-3 Zazzles's Agent",
                 model_id="kimi-k2",
                 local_path=None,  # API-based
                 version="k2.0",

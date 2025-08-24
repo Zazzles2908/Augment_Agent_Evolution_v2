@@ -14,7 +14,7 @@ Param(
 )
 
 $ErrorActionPreference = 'Stop'
-Write-Host "(AugmentAI) Building INT4 TensorRT engine for $Model using trtexec (25.06)" -ForegroundColor Cyan
+Write-Host "(Zazzles's Agent) Building INT4 TensorRT engine for $Model using trtexec (25.06)" -ForegroundColor Cyan
 
 # Paths: assume ONNX under <base>/1/model.onnx and output under <model>_trt/1/model.plan when applicable
 $onnxDir = Join-Path $Repo $Model
@@ -58,9 +58,9 @@ $dockerArgs = @(
 if ($TimingCacheFile) { $dockerArgs += "--timingCacheFile=/models/$($TimingCacheFile)" }
 if ($Verbose) { $dockerArgs += '--verbose=1' }
 
-Write-Host "(AugmentAI) Running: docker $($dockerArgs -join ' ')" -ForegroundColor Yellow
+Write-Host "(Zazzles's Agent) Running: docker $($dockerArgs -join ' ')" -ForegroundColor Yellow
 $proc = Start-Process -FilePath docker -ArgumentList $dockerArgs -NoNewWindow -PassThru -Wait
 if ($proc.ExitCode -ne 0) { throw "trtexec build failed with exit code $($proc.ExitCode)" }
 
-Write-Host "(AugmentAI) ✅ INT4 engine built: $planPath" -ForegroundColor Green
+Write-Host "(Zazzles's Agent) ✅ INT4 engine built: $planPath" -ForegroundColor Green
 

@@ -5,7 +5,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-Write-Host '(AugmentAI) TensorRT .tar installer for WSL Ubuntu 24.04 (CUDA 13)' -ForegroundColor Cyan
+Write-Host '(Zazzles's Agent) TensorRT .tar installer for WSL Ubuntu 24.04 (CUDA 13)' -ForegroundColor Cyan
 Write-Host "User: $User" -ForegroundColor Cyan
 Write-Host "TarName: $TarName" -ForegroundColor Cyan
 
@@ -85,11 +85,11 @@ if (-not [string]::IsNullOrWhiteSpace($Wheel)) {
 & wsl.exe -u root -e bash -lc "printf '%s\n' 'export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH' > /etc/profile.d/tensorrt.sh"
 
 # 8) Verification
-Write-Host '(AugmentAI) Verifying trtexec...' -ForegroundColor Cyan
+Write-Host '(Zazzles's Agent) Verifying trtexec...' -ForegroundColor Cyan
 & wsl.exe -e trtexec --version | Out-Host
 
-Write-Host '(AugmentAI) Verifying Python tensorrt import (venv)...' -ForegroundColor Cyan
+Write-Host '(Zazzles's Agent) Verifying Python tensorrt import (venv)...' -ForegroundColor Cyan
 & wsl.exe -e "/opt/tensorrt/venv/bin/python" -c "import tensorrt as trt; print('TensorRT:', trt.__version__); print('FP4 flag available:', hasattr(trt.BuilderFlag,'FP4'))" | Out-Host
 
-Write-Host '(AugmentAI) Done.' -ForegroundColor Green
+Write-Host '(Zazzles's Agent) Done.' -ForegroundColor Green
 
