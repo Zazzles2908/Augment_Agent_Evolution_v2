@@ -1,0 +1,108 @@
+version: "3.9"
+
+# Phase 1 containerized environment with Zen validation context
+# Services: Triton, Redis (+exporter), Prometheus, Grafana, DCGM exporter
+# Note: Requires NVIDIA Container Toolkit for GPU access
+
+services:
+  triton:
+    image: nvcr.io/nvidia/tritonserver:24.05-py3
+    container_name: triton
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-UTC}
+    command: [
+      "tritonserver",
+      "--model-repository=/models",
+      "--model-control-mode=explicit",
+      "--http-port=${TRITON_HTTP_PORT:-8000}",
+      "--grpc-port=${TRITON_GRPC_PORT:-8001}",
+      "--metrics-port=${TRITON_METRICS_PORT:-8002}"
+    ]
+    ports:
+      - "${TRITON_HTTP_PORT:-8000}:8000"
+      - "${TRITON_GRPC_PORT:-8001}:8001"
+      - "${TRITON_METRICS_PORT:-8002}:8002"
+    volumes:
+      - ${MODEL_REPO:-./containers/four-brain/triton/model_repository}:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+    runtime: nvidia
+    networks:
+      - ai
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ai
+
+  redis_exporter:
+    image: oliver006/redis_exporter:v1.62.0
+    container_name: redis_exporter
+    restart: unless-stopped
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    ports:
+      - "${REDIS_EXPORTER_PORT:-9121}:9121"
+    networks:
+      - ai
+
+  dcgm:
+    image: nvidia/dcgm-exporter:3.3.5-3.4.1-ubuntu22.04
+    container_name: dcgm
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - DCGM_EXPORTER_LISTEN=0.0.0.0:9400
+    ports:
+      - "${DCGM_PORT:-9400}:9400"
+    networks:
+      - ai
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./containers/four-brain/config/monitoring/prometheus/prometheus.compose.yml:/etc/prometheus/prometheus.yml:ro
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=${PROM_RETENTION:-15d}"]
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    networks:
+      - ai
+
+  grafana:
+    image: grafana/grafana:10.4.6
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_DEFAULT_THEME=light
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./containers/four-brain/config/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./containers/four-brain/config/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    networks:
+      - ai
+
+networks:
+  ai:
+    name: ai
+
+volumes:
+  redis-data:
+  grafana-data:
+

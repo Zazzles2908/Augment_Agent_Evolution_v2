@@ -40,6 +40,9 @@ help:
 	@echo "  make ingest                    # Run Docling ingestion with optional Redis cache"
 	@echo "  make query Q='question'        # Run E2E query call"
 	@echo "  make zen-report                # Generate Phase 1 Zen validation report"
+	@echo "  make compose-up                # Start Triton+Redis+Prometheus+Grafana"
+	@echo "  make compose-down              # Stop and remove compose stack"
+	@echo "  make compose-logs              # Tail logs for a service (S=service)"
 	@echo "  (Use DRY_RUN=0 to execute, DRY_RUN=1 to simulate)"
 
 # -------- Zen audits --------
@@ -118,6 +121,23 @@ query:
 zen-report:
 	@echo $(NOTE) "Generate Phase 1 validation report from traces"
 	$(RUN) $(ZEN) docgen_zen --source traces/ --output documents/reports/phase1_validation_report.md --context documents/stack
+
+# -------- Docker Compose --------
+.PHONY: compose-up compose-down compose-logs
+compose-up:
+	@echo $(NOTE) "Starting compose stack"
+	$(RUN) docker compose up -d
+	@echo $(NOTE) "Prometheus at http://localhost:$${PROMETHEUS_PORT:-9090}"
+	@echo $(NOTE) "Grafana at http://localhost:$${GRAFANA_PORT:-3000} (admin/admin)"
+	@echo $(NOTE) "Triton metrics at http://localhost:$${TRITON_METRICS_PORT:-8002}/metrics"
+
+compose-down:
+	@echo $(NOTE) "Stopping compose stack"
+	$(RUN) docker compose down -v
+
+compose-logs:
+	@echo $(NOTE) "Logs for $(S)"
+	$(RUN) docker compose logs -f $(S)
 
 # -------- Defaults --------
 .PHONY: all

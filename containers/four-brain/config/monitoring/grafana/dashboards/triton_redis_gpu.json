@@ -1,0 +1,44 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "title": "Phase 1: Triton + Redis + GPU",
+  "schemaVersion": 38,
+  "version": 1,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Triton latency (p50/p95/p99)",
+      "gridPos": {"x":0,"y":0,"w":12,"h":8},
+      "targets": [
+        {"expr": "histogram_quantile(0.50, sum(rate(nv_inference_request_duration_us_bucket[1m])) by (le)) / 1e6", "legendFormat": "p50"},
+        {"expr": "histogram_quantile(0.95, sum(rate(nv_inference_request_duration_us_bucket[1m])) by (le)) / 1e6", "legendFormat": "p95"},
+        {"expr": "histogram_quantile(0.99, sum(rate(nv_inference_request_duration_us_bucket[1m])) by (le)) / 1e6", "legendFormat": "p99"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "GPU utilization",
+      "gridPos": {"x":12,"y":0,"w":12,"h":8},
+      "targets": [
+        {"expr": "avg(nvidia_gpu_duty_cycle)"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Redis cache hit rate",
+      "gridPos": {"x":0,"y":8,"w":12,"h":8},
+      "targets": [
+        {"expr": "rate(redis_keyspace_hits_total[1m]) / (rate(redis_keyspace_hits_total[1m]) + rate(redis_keyspace_misses_total[1m]))"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Triton throughput (RPS)",
+      "gridPos": {"x":12,"y":8,"w":12,"h":8},
+      "targets": [
+        {"expr": "sum(rate(nv_inference_request_success[1m]))"}
+      ]
+    }
+  ]
+}
+

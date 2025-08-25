@@ -11,7 +11,8 @@ param(
   [string]$RedisUrl = "redis://localhost:6379",
   [int]$TritonHttp = 8000,
   [int]$TritonMetrics = 8002,
-  [string]$Zen = "zen"
+  [string]$Zen = "zen",
+  [switch]$UseCompose = $true
 )
 
 function Invoke-Step($Name, $Cmd) {
