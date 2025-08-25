@@ -2,8 +2,8 @@
 
 - Embedding model: Qwen3-4B served via Triton (FP8 plan), reranker/generator (NVFP4)
 - Output dimension: 2000 (aligns with Supabase pgvector HNSW limit)
-- Cache: Redis for deduping repeated texts
-- Store: Supabase table with text, embedding (vector(2000)), and metadata
+- Cache: Redis for deduping repeated texts (to be integrated into ingestion/query now)
+- Store: (Temporarily local placeholder) until Supabase MCP integration resumes; final target is Supabase table with text, embedding (vector(2000)), and metadata
 
 Supabase schema (example)
 

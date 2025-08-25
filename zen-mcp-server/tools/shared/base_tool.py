@@ -153,6 +153,69 @@ class BaseTool(ABC):
         """
         pass
 
+    def get_descriptor(self) -> dict[str, Any]:
+        """Return a machine-readable descriptor for this tool (MVP).
+
+        Non-breaking default that harvests existing metadata so planners/orchestrators
+        can reason about tools without hardcoding. WorkflowTool will override to add
+        workflow-specific semantics.
+        """
+        # Basic fields
+        name = self.get_name()
+        try:
+            description = self.get_description()
+        except Exception:
+            description = ""
+        try:
+            annotations = self.get_annotations() or {}
+        except Exception:
+            annotations = {}
+        try:
+            schema = self.get_input_schema()
+        except Exception:
+            schema = {}
+
+        # Some tool variants (e.g., WorkflowTool) may expose get_required_fields.
+        req_fields: list[str] = []
+        try:
+            rf = getattr(self, "get_required_fields", None)
+            if callable(rf):
+                req_fields = rf() or []
+        except Exception:
+            req_fields = []
+
+        # Optional: model category for cost/latency hints
+        model_category = None
+        try:
+            get_mc = getattr(self, "get_model_category", None)
+            if callable(get_mc):
+                mc = get_mc()
+                model_category = getattr(mc, "value", getattr(mc, "name", str(mc)))
+        except Exception:
+            model_category = None
+
+        # Optional: whether tool requires a model
+        requires_model = None
+        try:
+            requires_model = bool(self.requires_model())
+        except Exception:
+            requires_model = None
+
+        return {
+            "id": name,
+            "display_name": name,
+            "description": description,
+            "category": "core",
+            "type": "simple",
+            "capabilities": [],
+            "supports_workflow": False,
+            "required_fields": req_fields,
+            "input_schema": schema,
+            "annotations": annotations,
+            **({"model_category": model_category} if model_category else {}),
+            **({"requires_model": requires_model} if requires_model is not None else {}),
+        }
+
     def get_annotations(self) -> Optional[dict[str, Any]]:
         """
         Return optional annotations for this tool.

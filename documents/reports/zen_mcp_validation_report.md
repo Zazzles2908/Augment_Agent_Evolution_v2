@@ -89,3 +89,26 @@ provider_types = [ProviderType.KIMI, ProviderType.GLM, ProviderType.GOOGLE, Prov
 ## Conclusion
 Zen MCP v2 is functional and robust for core workflows. I’ve opened PR #5 with minimal improvements and this documentation. With green probes in your client, I will merge to main.
 
+
+
+## 2025-08-24 Updates — Descriptor-driven orchestration and workflow fixes
+
+- Added BaseTool.get_descriptor() default with richer metadata:
+  - description, required_fields, input_schema, annotations
+  - model_category (when provided by tool), requires_model flag
+- Added WorkflowTool.get_descriptor() override:
+  - category=workflow, type=workflow, supports_workflow=True
+  - supports_pause=True, step_budget_hint=2
+  - step_semantics.first_step_required_fields inferred (e.g., relevant_files)
+- Fixed WorkflowTool.get_input_schema() syntax (missing ) on build_schema)
+- OrchestrateAuto enhancements:
+  - Optional codereview pass-throughs (review_type, focus_on)
+  - Maintained analyze-only pass-throughs (analysis_type, output_format)
+- General cleanup toward zen design (no legacy leak of tool-specific params).
+
+Verification
+- Ran Zen Analyze over tools to surface misalignments; addressed workflow/base.py error and descriptor enrichment.
+- Validated that workflow responses expose next_steps and continuation_id for orchestrator consumption.
+
+Next suggested step
+- Extend orchestrator to consume descriptors.step_semantics.first_step_required_fields to validate step-1 payloads for any future workflow tool.

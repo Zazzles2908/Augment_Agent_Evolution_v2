@@ -17,8 +17,15 @@ cache/
 @host/
 @data/
 
-# Triton model_repository versioned contents
+# Triton model_repository versioned contents and heavy artifacts
 containers/**/triton/model_repository/**/[0-9]*/
+containers/**/triton/model_repository/**/1/
+# Block heavy files everywhere
+*.onnx
+*.plan
+*.pt
+*.pth
+*.ckpt
 
 # Secrets
 .env
@@ -51,6 +58,7 @@ tmp/
 # Local tools cache
 .supabase/
 node_modules/
+documents/.tmp.drivedownload/
 # Track Zen MCP server code, but ignore env, venv, logs and caches
 # (specific ignores below keep secrets/artifacts out)
 # zen-mcp-server

@@ -12,6 +12,7 @@ multi-tool routing (codereview, testgen, tracer, etc.).
 from __future__ import annotations
 
 import os
+import json
 import logging
 from typing import Any, Optional, Literal
 
@@ -35,6 +36,10 @@ class OrchestrateRequest(ToolRequest):
     """
 
     user_prompt: str = Field(..., description="High-level instruction. The orchestrator infers steps and tools.")
+    tool: Literal["analyze", "codereview"] | None = Field(
+        default=None,
+        description="Optional tool to run (default analyze). When omitted, orchestrator picks based on prompt.",
+    )
     relevant_files: list[str] | None = Field(
         default=None,
         description="Optional absolute paths to relevant files. If not provided, the tool infers a small set.",
@@ -48,6 +53,13 @@ class OrchestrateRequest(ToolRequest):
     )
     output_format: Literal["summary", "detailed", "actionable"] | None = Field(
         default=None, description="Optional output format to pass through to analyze (default step-based)."
+    )
+    # Optional pass-throughs for codereview
+    review_type: Literal["full", "security", "performance", "quick"] | None = Field(
+        default=None, description="Optional codereview review_type when tool='codereview' (default full)."
+    )
+    focus_on: Optional[str] = Field(
+        default=None, description="Optional codereview focus area when tool='codereview'."
     )
     dry_run: bool = Field(default=False, description="If true, plan only; do not execute underlying tools.")
 
@@ -167,20 +179,34 @@ class OrchestrateAutoTool(BaseTool):
             )
             return [{"type": "text", "text": guidance}]
 
-        # Build simple plan (MVP): Run analyze step 1 then step 2
+        # Select tool: explicit or heuristic (MVP)
+        selected_tool = (arguments.get("tool") or req.tool or "analyze").strip().lower()
+        if selected_tool not in {"analyze", "codereview"}:
+            selected_tool = "analyze"
+
+        # Get descriptors (future: use to validate per-tool requirements)
+        registry = ToolRegistry()
+        registry.build_tools()
+        descriptors = {}
+        try:
+            descriptors = registry.list_descriptors()
+        except Exception:
+            descriptors = {}
+
+        # Build simple plan: run selected workflow (analyze or codereview) for up to 2 steps
         plan = [
             {
-                "tool": "analyze",
+                "tool": selected_tool,
                 "step_number": 1,
-                "description": "Kick off analysis with specified/inferred files. Report goals and plan.",
+                "description": f"Kick off {selected_tool} with specified/inferred files. Report goals and plan.",
             }
         ]
         if req.step_budget >= 2:
             plan.append(
                 {
-                    "tool": "analyze",
+                    "tool": selected_tool,
                     "step_number": 2,
-                    "description": "Summarize concrete findings and complete early with validated insights.",
+                    "description": f"Summarize concrete findings and complete early with validated insights ({selected_tool}).",
                 }
             )
 
@@ -198,40 +224,47 @@ class OrchestrateAutoTool(BaseTool):
         registry.build_tools()
 
         outputs: list[str] = []
+        guidance: list[str] = []
         cont_id = arguments.get("continuation_id")
 
         for step in plan:
             tool_name = step["tool"]
-            if tool_name != "analyze":
-                outputs.append(f"Skipping unsupported tool in MVP: {tool_name}")
-                continue
             try:
-                analyze_tool = registry.get_tool("analyze")
+                tool_impl = registry.get_tool(tool_name)
             except Exception as e:
-                outputs.append(f"Failed to load analyze tool: {e}")
+                outputs.append(f"Failed to load tool '{tool_name}': {e}")
                 break
 
             step_num = step["step_number"]
             total_steps = max(step_num, min(req.step_budget, 2))
 
-            # Prepare minimal valid payloads for Analyze workflow
+            # Prepare minimal valid payloads for workflow tools (analyze, codereview)
             if step_num == 1:
+                step_text = f"Start {tool_name}: {req.user_prompt}"
                 args = {
                     "model": model_name,
-                    "step": f"Start analysis: {req.user_prompt}",
+                    "step": step_text,
                     "step_number": 1,
                     "total_steps": total_steps,
                     "next_step_required": total_steps > 1,
                     "findings": "Plan initial investigation and identify target files.",
                     "relevant_files": relevant_files,
                     "files_checked": [],
-                    "analysis_type": arguments.get("analysis_type") or "general",
-                    "output_format": arguments.get("output_format") or "summary",
                 }
+                # Analyze-specific pass-throughs
+                if tool_name == "analyze":
+                    args["analysis_type"] = arguments.get("analysis_type") or "general"
+                    args["output_format"] = arguments.get("output_format") or "summary"
+                # Codereview-specific optional pass-throughs
+                if tool_name == "codereview":
+                    if arguments.get("review_type"):
+                        args["review_type"] = arguments["review_type"]
+                    if arguments.get("focus_on"):
+                        args["focus_on"] = arguments["focus_on"]
             else:  # step 2
                 args = {
                     "model": model_name,
-                    "step": "Report concrete findings and recommendations based on investigation.",
+                    "step": f"Report concrete findings and recommendations based on investigation ({tool_name}).",
                     "step_number": 2,
                     "total_steps": total_steps,
                     "next_step_required": False,
@@ -240,23 +273,51 @@ class OrchestrateAutoTool(BaseTool):
                     ),
                     "relevant_files": relevant_files,
                     "files_checked": relevant_files,
-                    "analysis_type": arguments.get("analysis_type") or "general",
-                    "output_format": arguments.get("output_format") or "actionable",
                 }
+                if tool_name == "analyze":
+                    args["analysis_type"] = arguments.get("analysis_type") or "general"
+                    args["output_format"] = arguments.get("output_format") or "actionable"
 
             if cont_id:
                 args["continuation_id"] = cont_id
 
-            # Execute analyze step
+            # Execute workflow step
             try:
-                result_chunks = await analyze_tool.execute(args)
+                result_chunks = await tool_impl.execute(args)
+                # Render full output for visibility
                 rendered = self._render_chunks(result_chunks)
-                outputs.append(f"[analyze step {step_num}]\n{rendered}")
+                outputs.append(f"[{tool_name} step {step_num}]\n{rendered}")
+
+                # Try to parse JSON response to extract continuation_id and next_steps
+                try:
+                    # Use the first text chunk as JSON payload
+                    first_text = None
+                    if result_chunks:
+                        ch0 = result_chunks[0]
+                        if isinstance(ch0, dict):
+                            first_text = ch0.get("text")
+                        else:
+                            first_text = getattr(ch0, "text", None)
+                    if first_text:
+                        data = json.loads(first_text)
+                        # Capture guidance
+                        ns = data.get("next_steps")
+                        if ns:
+                            guidance.append(f"Step {step_num}: {ns}")
+                        # Update continuation id for subsequent steps when not provided initially
+                        cid = data.get("continuation_id")
+                        if cid:
+                            cont_id = cid
+                except Exception:
+                    # Non-JSON or unexpected structure; skip extraction but continue
+                    pass
             except Exception as e:
-                outputs.append(f"Analyze step {step_num} failed: {type(e).__name__}: {e}")
+                outputs.append(f"{tool_name} step {step_num} failed: {type(e).__name__}: {e}")
                 break
 
-        final_text = self._format_consolidated_output(req.user_prompt, model_name, relevant_files, plan, outputs)
+        final_text = self._format_consolidated_output(
+            req.user_prompt, model_name, relevant_files, plan, outputs, guidance
+        )
         return [{"type": "text", "text": final_text}]
 
     # ---------------------
@@ -327,7 +388,13 @@ class OrchestrateAutoTool(BaseTool):
         )
 
     def _format_consolidated_output(
-        self, user_prompt: str, model_name: str, files: list[str], plan: list[dict], outputs: list[str]
+        self,
+        user_prompt: str,
+        model_name: str,
+        files: list[str],
+        plan: list[dict],
+        outputs: list[str],
+        guidance: list[str] | None = None,
     ) -> str:
         header = [
             "=== ORCHESTRATION SUMMARY (MVP) ===",
@@ -345,9 +412,15 @@ class OrchestrateAutoTool(BaseTool):
         for out in outputs:
             body.append(out)
             body.append("")
+        # Include guidance extracted from analyze tool (next_steps / required actions)
+        guidance = guidance or []
+        if guidance:
+            body.append("Required Actions / Next Steps from Analyze:")
+            body.extend([f"- {g}" for g in guidance])
+            body.append("")
         footer = [
-            "Next: Expand orchestrator to multi-tool routing (codereview, testgen, tracer),",
-            "add model-driven planning, and tool schema introspection.",
+            "Next: Expand orchestrator to multi-tool routing (testgen, tracer) using descriptors,",
+            "add model-driven planning and cost-aware tool selection.",
         ]
         return "\n".join(header + body + footer)
 

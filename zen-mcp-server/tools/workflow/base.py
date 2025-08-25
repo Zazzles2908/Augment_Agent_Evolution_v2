@@ -147,6 +147,48 @@ class WorkflowTool(BaseTool, BaseWorkflowMixin):
             tool_name=self.get_name(),
         )
 
+    def get_descriptor(self) -> dict[str, Any]:
+        """Return workflow-specific descriptor with step semantics (MVP)."""
+        desc = super().get_descriptor()
+        # Mark as workflow tool
+        desc.update(
+            {
+                "category": "workflow",
+                "type": "workflow",
+                "supports_workflow": True,
+                "supports_pause": True,
+                "step_budget_hint": 2,
+            }
+        )
+
+        # Infer first-step requirements from request model if available
+        try:
+            req_model = self.get_workflow_request_model()
+            first_step_required_fields: list[str] = []
+            # Heuristic: if the model validates step-1 relevant_files, advertise it
+            if hasattr(req_model, "validate_step_one_requirements"):
+                first_step_required_fields.append("relevant_files")
+        except Exception:
+            first_step_required_fields = []
+
+        # Planning hints for common workflow fields
+        planning_hints = {
+            "common_workflow_fields": [
+                "step",
+                "step_number",
+                "total_steps",
+                "next_step_required",
+                "findings",
+            ]
+        }
+
+        desc["step_semantics"] = {
+            "first_step_required_fields": first_step_required_fields,
+            "final_step_flags": ["next_step_required=false"],
+        }
+        desc["planning_hints"] = planning_hints
+        return desc
+
     def get_workflow_request_model(self):
         """
         Return the workflow request model class.

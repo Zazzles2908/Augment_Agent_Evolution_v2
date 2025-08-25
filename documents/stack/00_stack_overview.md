@@ -13,17 +13,22 @@ Components
 - Triton: multi-model serving and metrics (25.08-py3; explicit model control; dynamic batching)
 - Prometheus + Grafana + Loki + Alloy: observability
 
-Dataflow
+Dataflow (Main system focus; Supabase/Zen integration paused)
 1) Ingest: Docling -> chunks with metadata
-2) Embed: Qwen3-4B -> 2000-dim vectors (cache in Redis)
-3) Store: upsert text + embeddings into Supabase (HNSW index)
-4) Query: embed query -> vector search -> rerank with Qwen3-0.6B
+2) Embed: Qwen3-4B -> 2000-dim vectors (add Redis cache)
+3) Retrieve: placeholder/local store until Supabase MCP is integrated
+4) Rerank: Qwen3-0.6B via Triton
 5) Generate: GLM-4.5 Air produces final answer with cited context
 
 Key decisions
-- 2000-dim embeddings to match pgvector index limit (Supabase docs)
+- 2000-dim embeddings to match pgvector index limit (design target)
 - Quantisation: FP8 for embeddings; NVFP4 for reranker, Docling, and GLM‑4.5 Air; Triton for concurrency
 - Strong monitoring: collect metrics from Triton at :8002/metrics
+
+Status (Main system)
+- Triton model configs present (embedding/reranker/generator); engines need validation
+- Ingestion script exists; add Redis caching and decouple from Supabase for now
+- Query chaining (embed->retrieve->rerank->generate) needs an end-to-end service
 
 Next
 - See 01_document_ingestion_docling.md, 02_embeddings_and_storage.md, 03_query_pipeline_rerank_generate.md, 04_triton_model_repository.md, 05_monitoring_observability.md, 06_deployment_runbook.md, 07_memory_and_performance.md

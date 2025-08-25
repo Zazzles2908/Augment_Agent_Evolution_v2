@@ -1,7 +1,7 @@
 # Query Pipeline: Embed → Vector Search → Rerank → Generate
 
 1) Query embedding: Qwen3-4B (FP8) via Triton
-2) Vector search: Supabase RPC over pgvector HNSW (top-k)
+2) Vector search: Placeholder/local store for now; Supabase RPC (pgvector HNSW) will be integrated via Supabase MCP later
 3) Rerank: Qwen3-0.6B (NVFP4) via Triton on (query, candidates)
 4) Generate: GLM-4.5 Air (NVFP4) via Triton with reranked context
 

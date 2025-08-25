@@ -98,3 +98,14 @@ class ToolRegistry:
     def list_tools(self) -> Dict[str, Any]:
         return dict(self._tools)
 
+    def list_descriptors(self) -> Dict[str, Any]:
+        """Return machine-readable descriptors for all loaded tools (MVP)."""
+        descs: Dict[str, Any] = {}
+        for name, tool in self._tools.items():
+            try:
+                # Each tool provides a default get_descriptor()
+                descs[name] = tool.get_descriptor()
+            except Exception as e:
+                descs[name] = {"error": f"Failed to get descriptor: {e}"}
+        return descs
+

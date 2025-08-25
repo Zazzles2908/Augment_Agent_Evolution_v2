@@ -35,7 +35,7 @@ Step-by-step (minimal local run)
      --http-port=8000 \
      --metrics-port=8002
 4) Load models via HTTP (use curl or tritonclient) and verify /v2/models/{name}
-5) Run smoke test embedding → search (pgvector) → rerank → generate
+5) Run smoke test embedding → search (placeholder) → rerank → generate (replace placeholder with Supabase MCP later)
 6) Validate metrics in Grafana; check logs in Loki
 
 Sanity curl examples
