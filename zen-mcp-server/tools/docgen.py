@@ -210,6 +210,13 @@ class DocgenTool(WorkflowTool):
         """Docgen is self-contained and doesn't need expert analysis."""
         return False
 
+
+    def get_first_step_required_fields(self) -> list[str]:
+        """
+        Docgen step 1 is discovery; do not require 'relevant_files' at step 1.
+        """
+        return []
+
     def get_workflow_request_model(self):
         """Return the docgen-specific request model."""
         return DocgenRequest

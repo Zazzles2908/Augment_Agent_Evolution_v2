@@ -112,3 +112,16 @@ Verification
 
 Next suggested step
 - Extend orchestrator to consume descriptors.step_semantics.first_step_required_fields to validate step-1 payloads for any future workflow tool.
+
+
+## 2025-08-25 Updates — Step semantics and workflow alignment
+
+- Added WorkflowTool.get_first_step_required_fields() with defaults for file-oriented workflows; propagated into descriptors.
+- Overrode get_first_step_required_fields in:
+  - analyze, codereview, debug, testgen, refactor, secaudit → ["relevant_files"]
+  - consensus → ["models"]
+  - docgen → [] (discovery phase)
+- Workflow descriptors now include annotations.first_step_required_fields for orchestrator hints.
+- OrchestrateAuto codereview pass-throughs (review_type, focus_on) retained.
+
+Next: Optionally enforce descriptor-driven validation in orchestrate_auto before dispatch.

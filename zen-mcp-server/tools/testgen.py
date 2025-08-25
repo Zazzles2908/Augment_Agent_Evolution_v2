@@ -189,6 +189,9 @@ class TestGenTool(WorkflowTool):
         """Return the test generation workflow-specific request model."""
         return TestGenRequest
 
+    def get_first_step_required_fields(self) -> list[str]:
+        return ["relevant_files"]
+
     def get_input_schema(self) -> dict[str, Any]:
         """Generate input schema using WorkflowSchemaBuilder with test generation-specific overrides."""
         from .workflow.schema_builders import WorkflowSchemaBuilder

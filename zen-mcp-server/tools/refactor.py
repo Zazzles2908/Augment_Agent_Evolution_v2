@@ -226,6 +226,9 @@ class RefactorTool(WorkflowTool):
         """Return the refactor workflow-specific request model."""
         return RefactorRequest
 
+    def get_first_step_required_fields(self) -> list[str]:
+        return ["relevant_files"]
+
     def get_input_schema(self) -> dict[str, Any]:
         """Generate input schema using WorkflowSchemaBuilder with refactor-specific overrides."""
         from .workflow.schema_builders import WorkflowSchemaBuilder

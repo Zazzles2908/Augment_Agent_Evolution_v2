@@ -237,6 +237,9 @@ class SecauditTool(WorkflowTool):
             "vulnerability identification, threat modeling, security architecture review."
         )
 
+    def get_first_step_required_fields(self) -> list[str]:
+        return ["relevant_files"]
+
     def get_system_prompt(self) -> str:
         """Return the system prompt for expert security analysis."""
         return SECAUDIT_PROMPT

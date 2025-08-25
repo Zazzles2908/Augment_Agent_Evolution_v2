@@ -228,6 +228,11 @@ of the evidence, even when it strongly points in one direction.""",
         """Return the consensus workflow-specific request model."""
         return ConsensusRequest
 
+    def get_first_step_required_fields(self) -> list[str]:
+        """Consensus requires 'models' in step 1, not 'relevant_files'."""
+        return ["models"]
+
+
     def get_input_schema(self) -> dict[str, Any]:
         """Generate input schema for consensus workflow."""
         from .workflow.schema_builders import WorkflowSchemaBuilder

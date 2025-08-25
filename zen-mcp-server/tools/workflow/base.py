@@ -147,6 +147,15 @@ class WorkflowTool(BaseTool, BaseWorkflowMixin):
             tool_name=self.get_name(),
         )
 
+
+    def get_first_step_required_fields(self) -> list[str]:
+        """
+        Declare which fields are required at step 1 for this workflow tool.
+        Default assumes file-oriented workflows and requires 'relevant_files'.
+        Override in subclasses (e.g., Consensus) when different.
+        """
+        return ["relevant_files"]
+
     def get_descriptor(self) -> dict[str, Any]:
         """Return workflow-specific descriptor with step semantics (MVP)."""
         desc = super().get_descriptor()
@@ -163,11 +172,8 @@ class WorkflowTool(BaseTool, BaseWorkflowMixin):
 
         # Infer first-step requirements from request model if available
         try:
-            req_model = self.get_workflow_request_model()
-            first_step_required_fields: list[str] = []
-            # Heuristic: if the model validates step-1 relevant_files, advertise it
-            if hasattr(req_model, "validate_step_one_requirements"):
-                first_step_required_fields.append("relevant_files")
+            # Allow subclasses to override which fields are required in step 1
+            first_step_required_fields: list[str] = list(self.get_first_step_required_fields() or [])
         except Exception:
             first_step_required_fields = []
 
@@ -186,6 +192,8 @@ class WorkflowTool(BaseTool, BaseWorkflowMixin):
             "first_step_required_fields": first_step_required_fields,
             "final_step_flags": ["next_step_required=false"],
         }
+        # Surface which fields are required at step 1 for orchestrators
+        desc.setdefault("annotations", {})["first_step_required_fields"] = first_step_required_fields
         desc["planning_hints"] = planning_hints
         return desc
 

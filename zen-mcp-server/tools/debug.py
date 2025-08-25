@@ -205,6 +205,10 @@ class DebugIssueTool(WorkflowTool):
         """Return the debug-specific request model."""
         return DebugInvestigationRequest
 
+    def get_first_step_required_fields(self) -> list[str]:
+        return ["relevant_files"]
+
+
     def get_input_schema(self) -> dict[str, Any]:
         """Generate input schema using WorkflowSchemaBuilder with debug-specific overrides."""
         from .workflow.schema_builders import WorkflowSchemaBuilder

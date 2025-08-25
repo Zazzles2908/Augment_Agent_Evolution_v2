@@ -20,6 +20,9 @@ processed = [{
 } for c in chunks]
 ```
 
+Status
+- Current code uses a naive splitter; Docling integration is planned. Use this as the target API and keep metadata parity.
+
 Notes
 - Keep chunk sizes ~500-1000 tokens for robust retrieval and reranking.
 - Capture table content separately if needed for precise QA.

@@ -169,8 +169,27 @@ class OrchestrateAutoTool(BaseTool):
         # Infer relevant files if not provided
         relevant_files = self._ensure_abs_paths(req.relevant_files) if req.relevant_files else self._infer_relevant_files()
 
-        # Validate that we have at least one file for analyze step 1
-        if not relevant_files:
+        # Descriptor-driven validation of first-step requirements for selected tool
+        selected_tool = (arguments.get("tool") or req.tool or "analyze").strip().lower()
+        registry = ToolRegistry()
+        registry.build_tools()
+        descriptors = {}
+        try:
+            descriptors = registry.list_descriptors()
+        except Exception:
+            descriptors = {}
+        first_step_reqs = []
+        try:
+            first_step_reqs = (
+                descriptors.get(selected_tool, {})
+                .get("annotations", {})
+                .get("first_step_required_fields", [])
+            )
+        except Exception:
+            first_step_reqs = []
+
+        # Validate minimally required context for first step based on descriptor
+        if "relevant_files" in first_step_reqs and not relevant_files:
             guidance = (
                 "OrchestrateAuto could not infer any relevant files. Please provide at least one FULL absolute path "
                 "to a file or directory under your repository in the 'relevant_files' parameter. Example: \n"
