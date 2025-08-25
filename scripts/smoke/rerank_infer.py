@@ -27,15 +27,15 @@ client=http.InferenceServerClient(url=TRITON_URL)
 inputs=[
   http.InferInput("query_ids",q_ids.shape,np_to_triton_dtype(q_ids.dtype)),
   http.InferInput("query_mask",q_mask.shape,np_to_triton_dtype(q_mask.dtype)),
-  http.InferInput("cand_ids",c_ids.shape,np_to_triton_dtype(c_ids.dtype)),
-  http.InferInput("cand_mask",c_mask.shape,np_to_triton_dtype(c_mask.dtype)),
+  http.InferInput("doc_ids",c_ids.shape,np_to_triton_dtype(c_ids.dtype)),
+  http.InferInput("doc_mask",c_mask.shape,np_to_triton_dtype(c_mask.dtype)),
 ]
 inputs[0].set_data_from_numpy(q_ids)
 inputs[1].set_data_from_numpy(q_mask)
 inputs[2].set_data_from_numpy(c_ids)
 inputs[3].set_data_from_numpy(c_mask)
-req_out=[http.InferRequestedOutput("scores",binary_data=True)]
+req_out=[http.InferRequestedOutput("score",binary_data=True)]
 res=client.infer(MODEL,inputs,outputs=req_out,timeout=60)
-scores=res.as_numpy("scores")
-print(scores)
+score=res.as_numpy("score")
+print(score)
 
