@@ -175,6 +175,10 @@ class ThinkDeepTool(WorkflowTool):
         """Return the workflow request model for this tool"""
         return ThinkDeepWorkflowRequest
 
+    def get_first_step_required_fields(self) -> list[str]:
+        # Thinkdeep does not require files in step 1; it’s analysis-focused
+        return []
+
     def get_input_schema(self) -> dict[str, Any]:
         """Generate input schema using WorkflowSchemaBuilder with thinkdeep-specific overrides."""
         from .workflow.schema_builders import WorkflowSchemaBuilder

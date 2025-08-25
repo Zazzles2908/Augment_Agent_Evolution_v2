@@ -184,6 +184,11 @@ class PlannerTool(WorkflowTool):
         """Return the planner-specific request model."""
         return PlannerRequest
 
+    def get_first_step_required_fields(self) -> list[str]:
+        # Planning does not require files or models at step 1
+        return []
+
+
     def get_input_schema(self) -> dict[str, Any]:
         """Generate input schema for planner workflow using override pattern."""
         from .workflow.schema_builders import WorkflowSchemaBuilder

@@ -233,6 +233,10 @@ class TracerTool(WorkflowTool):
         """Return the tracer-specific request model."""
         return TracerRequest
 
+    def get_first_step_required_fields(self) -> list[str]:
+        # Tracer benefits from files in step 1
+        return ["relevant_files"]
+
     def get_tool_fields(self) -> dict[str, dict[str, Any]]:
         """Return tracing-specific field definitions beyond the standard workflow fields."""
         return {

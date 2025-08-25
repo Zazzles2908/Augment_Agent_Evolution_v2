@@ -125,3 +125,9 @@ Next suggested step
 - OrchestrateAuto codereview pass-throughs (review_type, focus_on) retained.
 
 Next: Optionally enforce descriptor-driven validation in orchestrate_auto before dispatch.
+- Added first_step_required_fields overrides:
+  - planner → []
+  - thinkdeep → []
+  - tracer → ["relevant_files"]
+  - precommit already validated via request model (path); descriptor inherit handled
+
