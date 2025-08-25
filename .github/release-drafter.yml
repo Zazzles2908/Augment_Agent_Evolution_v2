@@ -1,5 +1,18 @@
 name-template: 'v$NEXT_PATCH_VERSION'
 tag-template: 'v$NEXT_PATCH_VERSION'
+change-template: '- $TITLE (#$NUMBER) by @$AUTHOR'
+no-changes-template: 'No user-facing changes in this release.'
+
+# REQUIRED by release-drafter v6
+# This template defines the body of the release notes
+# See: https://github.com/release-drafter/release-drafter#configuration
+template: |
+  ## What’s Changed
+  $CHANGES
+
+  ## Contributors
+  $CONTRIBUTORS
+
 categories:
   - title: '🚀 Features'
     labels: ['feature', 'enhancement']
@@ -7,6 +20,3 @@ categories:
     labels: ['bug', 'fix']
   - title: '🧰 Maintenance'
     labels: ['chore', 'refactor', 'deps']
-change-template: '- $TITLE (#$NUMBER) by @$AUTHOR'
-no-changes-template: 'No user-facing changes in this release.'
-

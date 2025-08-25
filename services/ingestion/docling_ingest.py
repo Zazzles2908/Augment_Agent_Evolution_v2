@@ -110,6 +110,18 @@ def run_ingest(input_dir: Path, batch_size: int = 16, dry_run: bool = False) -> 
     files = discover_files(input_dir)
     print(f"Discovered {len(files)} files")
 
+    # Optional Redis caching (embeddings) via REDIS_URL
+    r = None
+    REDIS_URL = os.getenv("REDIS_URL")
+    if REDIS_URL:
+        try:
+            import redis, json
+            r = redis.from_url(REDIS_URL)
+            print("Redis enabled for embedding cache")
+        except Exception as e:
+            print(f"Redis disabled: {e}")
+            r = None
+
     for fp in files:
         text = read_text(fp)
         chunks = naive_chunk(text)
@@ -122,7 +134,31 @@ def run_ingest(input_dir: Path, batch_size: int = 16, dry_run: bool = False) -> 
         rows: List[Dict[str, Any]] = []
         for i in range(0, len(chunks), batch_size):
             batch = chunks[i:i+batch_size]
-            emb = triton_embed(batch)  # [B,2000]
+            # Redis lookup by content hash
+            to_embed = []
+            cached: Dict[int, Any] = {}
+            for j, ch in enumerate(batch):
+                if r is not None:
+                    k = f"emb:v1:{hashlib.sha256(ch.encode()).hexdigest()}"
+                    v = r.get(k)
+                    if v:
+                        try:
+                            cached[j] = json.loads(v)
+                        except Exception:
+                            cached[j] = None
+                    else:
+                        to_embed.append((j, ch, k))
+                else:
+                    to_embed.append((j, ch, None))
+
+            if to_embed:
+                emb = triton_embed([t[1] for t in to_embed])  # [N,2000]
+                for idx, (j, ch, k) in enumerate(to_embed):
+                    vec = emb[idx].tolist()
+                    cached[j] = vec
+                    if r is not None and k:
+                        r.setex(k, 7*24*3600, json.dumps(vec))  # 7d TTL
+
             for j, ch in enumerate(batch):
                 chunk_id = f"{i+j}"
                 rows.append({
@@ -130,11 +166,12 @@ def run_ingest(input_dir: Path, batch_size: int = 16, dry_run: bool = False) -> 
                     "chunk_id": chunk_id,
                     "title": fp.name,
                     "text_excerpt": ch[:512],
-                    "embedding": emb[j].tolist(),
+                    "embedding": cached[j],
                     "metadata": {"path": str(fp)}
                 })
-        supabase_upsert_vectors(rows)
-        print(f"Ingested {fp} -> {len(rows)} vectors")
+        # For Phase 1, you may upsert to placeholder store or Supabase later
+        # supabase_upsert_vectors(rows)
+        print(f"Prepared {fp} -> {len(rows)} vectors (cached+fresh)")
 
 
 def main():
