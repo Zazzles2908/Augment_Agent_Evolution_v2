@@ -26,4 +26,5 @@ Status
 Notes
 - Keep chunk sizes ~500-1000 tokens for robust retrieval and reranking.
 - Capture table content separately if needed for precise QA.
+- Preserve Docling metadata (section, table, figure) and include in embeddings metadata for improved reranking and filtering.
 

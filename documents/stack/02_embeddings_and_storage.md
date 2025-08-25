@@ -24,6 +24,12 @@ Embedding flow
 2) If miss, call Triton model qwen3_4b_embedding
 3) Store embedding in Redis and upsert into Supabase
 
+Redis key/TTL patterns (recommended)
+- Key namespaces: emb:v1:{sha256(content)}, rr:v1:{sha256(query)}
+- TTLs: embeddings 7d; rerank/generation results 15–60m based on churn
+- Eviction: allkeys-lru; monitor hit rate and fragmentation; size to avoid frequent evictions
+- Notes: include content length/version in key to avoid collisions on normalization changes
+
 
 
 Supabase RPC (match_documents)

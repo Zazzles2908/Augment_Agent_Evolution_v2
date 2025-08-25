@@ -18,6 +18,7 @@ Initialize DB
 Sanity checks
 - Triton: curl http://localhost:8000/v2/health/ready
 - Metrics: curl http://localhost:8002/metrics | head
+- Tests: see documents/implementation/04_testing_full_system.md for smoke and acceptance criteria
 
 Notes
 - Ensure model_repository is mounted into Triton and names match scripts

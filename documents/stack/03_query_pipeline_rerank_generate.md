@@ -8,6 +8,7 @@
 Response policy
 - Return answer + supporting sources (chunk ids/metadata)
 - Cache results if appropriate for fast recall
+- Optional: compress context after rerank (top‑k) before generation to reduce latency
 
 Integration phase order
 - Phase 1: Main-system only with placeholder retrieval (current)

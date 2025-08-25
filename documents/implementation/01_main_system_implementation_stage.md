@@ -30,3 +30,9 @@ Deliverables
 - Redis-enabled ingestion and query paths
 - Monitoring dashboards minimally covering latency, throughput, GPU/VRAM, cache hit rate
 
+Engine smoke scripts checklist (expected)
+- scripts/smoke/triton_repository.sh (load/unload models)
+- scripts/smoke/embed_infer.py (qwen3_4b_embedding)
+- scripts/smoke/rerank_infer.py (qwen3_0_6b_reranking)
+- scripts/smoke/generate_infer.py (glm45_air)
+
