@@ -86,6 +86,15 @@ EXCLUDED_DIRS = {
     "vendor",
 }
 
+# Project-specific excludes added for safety/performance
+# Avoid embedding virtual environments and bulky test artifacts
+EXCLUDED_DIRS.update({
+    ".zen_venv",
+    "site-packages",
+    "test_simulation_files",
+})
+
+
 
 def is_dangerous_path(path: Path) -> bool:
     """

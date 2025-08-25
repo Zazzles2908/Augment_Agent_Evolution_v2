@@ -129,5 +129,6 @@ Next: Optionally enforce descriptor-driven validation in orchestrate_auto before
   - planner → []
   - thinkdeep → []
   - tracer → ["relevant_files"]
-  - precommit already validated via request model (path); descriptor inherit handled
+  - precommit → ["path"] (descriptor now surfaces the real step-1 requirement)
+- OrchestrateAuto: dry-run preview now includes status/next_steps/continuation_id and plan text reflects selected tool; final response also includes status and continuation_id.
 

@@ -117,8 +117,6 @@ class HealthWrappedProvider(ModelProvider):
     def get_provider_type(self) -> ProviderType:
         return self._ptype
 
-    def supports_thinking_mode(self, model_name: str) -> bool:
-        return self._inner.supports_thinking_mode(model_name)
 
     # Ensure restriction validation sees real model lists/capabilities
     def get_model_configurations(self) -> dict[str, Any]:
@@ -127,8 +125,6 @@ class HealthWrappedProvider(ModelProvider):
     def get_all_model_aliases(self) -> dict[str, list[str]]:
         return self._inner.get_all_model_aliases()
 
-    def list_models(self, respect_restrictions: bool = True) -> list[str]:
-        return self._inner.list_models(respect_restrictions)
 
     def list_all_known_models(self) -> list[str]:
         return self._inner.list_all_known_models()

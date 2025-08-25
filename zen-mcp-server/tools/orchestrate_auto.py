@@ -203,14 +203,8 @@ class OrchestrateAutoTool(BaseTool):
         if selected_tool not in {"analyze", "codereview"}:
             selected_tool = "analyze"
 
-        # Get descriptors (future: use to validate per-tool requirements)
-        registry = ToolRegistry()
-        registry.build_tools()
-        descriptors = {}
-        try:
-            descriptors = registry.list_descriptors()
-        except Exception:
-            descriptors = {}
+        # Descriptors already loaded above; reuse for plan construction
+        # (avoid redundant registry.build_tools()/list_descriptors() calls)
 
         # Build simple plan: run selected workflow (analyze or codereview) for up to 2 steps
         plan = [
@@ -229,12 +223,15 @@ class OrchestrateAutoTool(BaseTool):
                 }
             )
 
-        # Dry run: return only plan preview
+        # Dry run: return only plan preview (with basic metadata)
         if req.dry_run:
             return [
                 {
                     "type": "text",
                     "text": self._format_plan_only(req.user_prompt, model_name, relevant_files, plan),
+                    "status": "plan_preview",
+                    "next_steps": "Run with dry_run=false to execute the plan.",
+                    "continuation_id": arguments.get("continuation_id"),
                 }
             ]
 
@@ -337,7 +334,13 @@ class OrchestrateAutoTool(BaseTool):
         final_text = self._format_consolidated_output(
             req.user_prompt, model_name, relevant_files, plan, outputs, guidance
         )
-        return [{"type": "text", "text": final_text}]
+        return [{
+            "type": "text",
+            "text": final_text,
+            "status": "orchestration_complete",
+            "next_steps": "Review results and consider next steps.",
+            "continuation_id": cont_id,
+        }]
 
     # ---------------------
     # Helpers
@@ -395,10 +398,10 @@ class OrchestrateAutoTool(BaseTool):
     def _format_plan_only(self, user_prompt: str, model_name: str, files: list[str], plan: list[dict]) -> str:
         plan_lines = [
             "Planned steps (MVP):",
-            f"- analyze step 1 (files={len(files)})",
+            f"- {plan[0]['tool']} step 1 (files={len(files)})" if plan else "- analyze step 1",
         ]
         if any(s.get("step_number") == 2 for s in plan):
-            plan_lines.append("- analyze step 2 (finalize)")
+            plan_lines.append(f"- {plan[0]['tool']} step 2 (finalize)" if plan else "- analyze step 2 (finalize)")
         return (
             f"OrchestrateAuto (MVP)\nRequest: {user_prompt}\nModel: {model_name}\nFiles:\n"
             + "\n".join(f"  - {f}" for f in files)

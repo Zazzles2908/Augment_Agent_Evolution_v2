@@ -234,6 +234,11 @@ class PrecommitTool(WorkflowTool):
     def get_workflow_request_model(self):
         """Return the precommit workflow-specific request model."""
         return PrecommitRequest
+    def get_first_step_required_fields(self) -> list[str]:
+        """Expose accurate step-1 requirement for orchestrators and UIs."""
+        # Precommit requires a repository 'path' at step 1 (not 'relevant_files')
+        return ["path"]
+
 
     def get_input_schema(self) -> dict[str, Any]:
         """Generate input schema using WorkflowSchemaBuilder with precommit-specific overrides."""
